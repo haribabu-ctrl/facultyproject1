@@ -1,5 +1,7 @@
 import 'package:faculty_app1/Screens/portofiloscreen/Expertise&recognition.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/administration.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/dashboard.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/portofilopage.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patents.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3bookschaptersConfirrence.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
@@ -58,7 +60,7 @@ class Sidebar extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            _menuItem("Dashboard", Icons.dashboard, TeachingPage()),
+            _menuItem("Dashboard", Icons.dashboard, FacultyPortfolioPage()),
             _menuItem("Teaching", Icons.menu_book, TeachingPage()),
 
             // ===== Research Section =====

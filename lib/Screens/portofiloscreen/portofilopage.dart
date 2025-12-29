@@ -40,7 +40,8 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   }
 
   double get totalWithoutInterpersonal =>
-      scores.entries.where((e) => e.key != "Interpersonal Skills")
+      scores.entries
+          .where((e) => e.key != "Interpersonal Skills")
           .fold(0, (sum, e) => sum + e.value);
 
   double get grandTotal =>
@@ -49,6 +50,11 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Faculty Portfolio"),
+        centerTitle: true,
+        backgroundColor: const Color(0xffFF7A18),
+      ),
       backgroundColor: const Color(0xffF6F6F6),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -67,14 +73,19 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Faculty Performance Portfolio",
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
+                  Text(
+                    "Faculty Performance Portfolio",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                   SizedBox(height: 6),
-                  Text("Annual Review (2025–26)",
-                      style: TextStyle(color: Colors.white70)),
+                  Text(
+                    "Annual Review (2025–26)",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ],
               ),
             ),
@@ -105,8 +116,6 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     );
   }
 
-  /// ================== WIDGETS ==================
-
   Widget _scoreCard(String title) {
     final max = maxScores[title]!;
     final value = scores[title]!;
@@ -117,11 +126,11 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 10,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -132,8 +141,7 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
               CircleAvatar(
                 backgroundColor:
                     indicatorColor(value, max).withOpacity(0.15),
-                child: Icon(icons[title],
-                    color: indicatorColor(value, max)),
+                child: Icon(icons[title], color: indicatorColor(value, max)),
               ),
               const Spacer(),
               Text("Max ${max.toInt()}",
@@ -142,8 +150,8 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
           ),
           const SizedBox(height: 12),
           Text(title,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextField(
             keyboardType: TextInputType.number,
@@ -176,12 +184,16 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Performance Summary",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            "Performance Summary",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           _summaryRow("Total Score", totalWithoutInterpersonal, 200),
           _summaryRow("Grand Total", grandTotal, 250),
@@ -212,20 +224,23 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Detailed Performance Breakdown",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            "Detailed Performance Breakdown",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           Table(
             border: TableBorder.all(color: Colors.grey.shade300),
             children: [
               _row("Category", "Max", "Score", "%", header: true),
               ...scores.keys.map((k) {
-                final percent =
-                    (scores[k]! / maxScores[k]!) * 100;
+                final percent = (scores[k]! / maxScores[k]!) * 100;
                 return _row(
                   k,
                   maxScores[k]!.toInt().toString(),
@@ -233,13 +248,20 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
                   "${percent.toStringAsFixed(0)}%",
                 );
               }),
-              _row("Total (without Interpersonal)", "200",
-                  totalWithoutInterpersonal.toInt().toString(),
-                  "${(totalWithoutInterpersonal / 200 * 100).toStringAsFixed(0)}%"),
-              _row("Grand Total", "250", grandTotal.toInt().toString(),
-                  "${(grandTotal / 250 * 100).toStringAsFixed(0)}%"),
+              _row(
+                "Total (without Interpersonal)",
+                "200",
+                totalWithoutInterpersonal.toInt().toString(),
+                "${(totalWithoutInterpersonal / 200 * 100).toStringAsFixed(0)}%",
+              ),
+              _row(
+                "Grand Total",
+                "250",
+                grandTotal.toInt().toString(),
+                "${(grandTotal / 250 * 100).toStringAsFixed(0)}%",
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -248,15 +270,18 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   TableRow _row(String a, String b, String c, String d,
       {bool header = false}) {
     return TableRow(
-      decoration: BoxDecoration(
-          color: header ? Colors.orange.shade100 : null),
+      decoration:
+          BoxDecoration(color: header ? Colors.orange.shade100 : null),
       children: [a, b, c, d]
           .map((e) => Padding(
                 padding: const EdgeInsets.all(10),
-                child: Text(e,
-                    style: TextStyle(
-                        fontWeight:
-                            header ? FontWeight.bold : FontWeight.normal)),
+                child: Text(
+                  e,
+                  style: TextStyle(
+                    fontWeight:
+                        header ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
               ))
           .toList(),
     );
