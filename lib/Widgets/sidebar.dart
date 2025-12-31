@@ -121,7 +121,7 @@ class Sidebar extends StatelessWidget {
             ),
 
             _menuItem(
-              "Expertise\n&Recognition",
+              "Expertise\n/value Addition",
               Icons.trending_up,
               ExpertiseRecognitionPage(),
             ),

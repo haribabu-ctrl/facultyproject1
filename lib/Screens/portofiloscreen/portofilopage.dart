@@ -1,3 +1,4 @@
+import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
 import 'package:flutter/material.dart';
 
 class FacultyPortfolioPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   };
 
   final Map<String, double> scores = {
-    "Teaching": 0,
+    "Teaching": totalTeachingAvg.toDouble(),
     "Research": 0,
     "Value Addition": 0,
     "Administration": 0,
@@ -141,33 +142,37 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
               CircleAvatar(
                 backgroundColor:
                     indicatorColor(value, max).withOpacity(0.15),
-                child: Icon(icons[title], color: indicatorColor(value, max)),
+                child: Icon(
+                  icons[title],
+                  color: indicatorColor(value, max),
+                ),
               ),
               const Spacer(),
-              Text("Max ${max.toInt()}",
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                "Max ${max.toInt()}",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(title,
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          TextField(
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: "Points Awarded",
-              filled: true,
-              fillColor: Color(0xffFAFAFA),
-              border: OutlineInputBorder(),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            onChanged: (v) {
-              final val = double.tryParse(v) ?? 0;
-              if (val <= max) {
-                setState(() => scores[title] = val);
-              }
-            },
           ),
+          const SizedBox(height: 10),
+
+          /// SCORE DISPLAY (TextField REMOVED)
+          Text(
+            "Score: ${value.toInt()}",
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
           const SizedBox(height: 14),
           LinearProgressIndicator(
             value: value / max,
@@ -240,7 +245,8 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
             children: [
               _row("Category", "Max", "Score", "%", header: true),
               ...scores.keys.map((k) {
-                final percent = (scores[k]! / maxScores[k]!) * 100;
+                final percent =
+                    (scores[k]! / maxScores[k]!) * 100;
                 return _row(
                   k,
                   maxScores[k]!.toInt().toString(),
@@ -267,22 +273,30 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     );
   }
 
-  TableRow _row(String a, String b, String c, String d,
-      {bool header = false}) {
+  TableRow _row(
+    String a,
+    String b,
+    String c,
+    String d, {
+    bool header = false,
+  }) {
     return TableRow(
-      decoration:
-          BoxDecoration(color: header ? Colors.orange.shade100 : null),
+      decoration: BoxDecoration(
+        color: header ? Colors.orange.shade100 : null,
+      ),
       children: [a, b, c, d]
-          .map((e) => Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  e,
-                  style: TextStyle(
-                    fontWeight:
-                        header ? FontWeight.bold : FontWeight.normal,
-                  ),
+          .map(
+            (e) => Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text(
+                e,
+                style: TextStyle(
+                  fontWeight:
+                      header ? FontWeight.bold : FontWeight.normal,
                 ),
-              ))
+              ),
+            ),
+          )
           .toList(),
     );
   }

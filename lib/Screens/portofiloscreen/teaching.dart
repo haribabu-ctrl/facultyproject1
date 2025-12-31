@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+int totalTeachingAvg = 0;
 
 class TeachingPage extends StatefulWidget {
   const TeachingPage({super.key});
@@ -14,6 +15,15 @@ class _TeachingPageState extends State<TeachingPage> {
     if (percent >= 85) return 15;
     if (percent >= 75) return 10;
     if (percent >= 70) return 5;
+    return 0;
+  }
+
+  // 🔹 ONLY FOR 1.2 COURSE FEEDBACK
+  double calculateFeedbackPoints(double percent) {
+    if (percent >= 80) return 20;
+    if (percent >= 70) return 15;
+    if (percent >= 60) return 10;
+    if (percent >= 50) return 5;
     return 0;
   }
 
@@ -47,7 +57,11 @@ class _TeachingPageState extends State<TeachingPage> {
         ),
       );
 
-  double avg(List<double> p) => p.reduce((a, b) => a + b) / p.length;
+  double avg(List<double> p) {
+    final valid = p.where((e) => e > 0).toList();
+    if (valid.isEmpty) return 0;
+    return valid.reduce((a, b) => a + b) / valid.length;
+  }
 
   // ================= SECTION 1.1 =================
   final s1A = List.generate(4, (_) => TextEditingController());
@@ -74,7 +88,13 @@ class _TeachingPageState extends State<TeachingPage> {
 
   @override
   void dispose() {
-    for (var c in s1A + s1B + s2Feedback + s3A + s3B + s4A + s4B) {
+    for (var c in s1A +
+        s1B +
+        s2Feedback +
+        s3A +
+        s3B +
+        s4A +
+        s4B) {
       c.dispose();
     }
     super.dispose();
@@ -86,7 +106,6 @@ class _TeachingPageState extends State<TeachingPage> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        /// HEADER
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -105,7 +124,6 @@ class _TeachingPageState extends State<TeachingPage> {
         ),
         const SizedBox(height: 24),
 
-        /// 1.1 Pass Percentage
         buildABSection(
           title: "1.1 Course Average Pass Percentage (Theory Only)",
           note:
@@ -117,18 +135,17 @@ class _TeachingPageState extends State<TeachingPage> {
           onSave: () => setState(() => s1Avg = avg(s1Points)),
         ),
 
-        /// 1.2 Feedback
+        // 🔴 ONLY THIS SECTION MODIFIED LOGIC-WISE
         buildFeedbackSection(
           title: "1.2 Course Feedback (Theory Only)",
           note:
-              "≥95% – 20 pts, ≥85 & <95 – 15 pts, ≥75 & <85 – 10 pts, ≥70 & <75 – 5 pts",
+              "≥80% – 20 pts, ≥70 & <80 – 15 pts, ≥60 & <70 – 10 pts, ≥50 & <60 – 5 pts",
           ctrls: s2Feedback,
           points: s2Points,
           savedAvg: s2Avg,
           onSave: () => setState(() => s2Avg = avg(s2Points)),
         ),
 
-        /// 1.3 Proctoring
         buildABSection(
           title: "1.3 Proctoring Students Average Pass Percentage",
           note:
@@ -140,7 +157,6 @@ class _TeachingPageState extends State<TeachingPage> {
           onSave: () => setState(() => s3Avg = avg(s3Points)),
         ),
 
-        /// 1.4 CO Attainment
         buildABSection(
           title: "1.4 CO Attainment (Theory Only)",
           note: "100% – 20 pts, 80% – 15 pts, 60% – 10 pts, 40% – 5 pts",
@@ -151,7 +167,6 @@ class _TeachingPageState extends State<TeachingPage> {
           onSave: () => setState(() => s4Avg = avg(s4Points)),
         ),
 
-        /// ================= SUMMARY TABLE =================
         const SizedBox(height: 24),
         buildSummaryTable(),
       ]),
@@ -169,10 +184,12 @@ class _TeachingPageState extends State<TeachingPage> {
     required double savedAvg,
     required VoidCallback onSave,
   }) {
+    const rowsCount = 4;
+
     return buildContainer(
       title,
       note,
-      List.generate(4, (i) {
+      List.generate(rowsCount, (i) {
         final a = double.tryParse(aCtrls[i].text) ?? 0;
         final b = double.tryParse(bCtrls[i].text) ?? 0;
         final percent = a == 0 ? 0.0 : (b / a) * 100.0;
@@ -187,43 +204,70 @@ class _TeachingPageState extends State<TeachingPage> {
           Text(percent == 0 ? "-" : percent.toStringAsFixed(1)),
           Text(points[i] == 0 ? "-" : points[i].toString(),
               style: TextStyle(color: pointColor(points[i]))),
-          Text(savedAvg == 0 ? "-" : savedAvg.toStringAsFixed(1)),
+          Text(i == rowsCount - 1 && savedAvg != 0
+              ? savedAvg.toStringAsFixed(1)
+              : "-"),
         ];
       }),
       onSave,
     );
   }
 
-  Widget buildFeedbackSection({
-    required String title,
-    required String note,
-    required List<TextEditingController> ctrls,
-    required List<double> points,
-    required double savedAvg,
-    required VoidCallback onSave,
-  }) {
-    return buildContainer(
-      title,
-      note,
-      List.generate(4, (i) {
-        final p = double.tryParse(ctrls[i].text) ?? 0;
-        points[i] = calculatePoints(p);
+  // 🔴 ONLY POINTS LOGIC CHANGED HERE
+Widget buildFeedbackSection({
+  required String title,
+  required String note,
+  required List<TextEditingController> ctrls, // % controllers
+  required List<double> points,
+  required double savedAvg,
+  required VoidCallback onSave,
+}) {
+  const rowsCount = 4;
 
-        return [
-          Text("${i + 1}"),
-          textInput(),
-          textInput(),
-          numberInput(ctrls[i]),
-          const Text("-"),
-          Text(p == 0 ? "-" : p.toStringAsFixed(1)),
-          Text(points[i] == 0 ? "-" : points[i].toString(),
-              style: TextStyle(color: pointColor(points[i]))),
-          Text(savedAvg == 0 ? "-" : savedAvg.toStringAsFixed(1)),
-        ];
-      }),
-      onSave,
-    );
-  }
+  // Separate controllers for A column (user input)
+  final aCtrls = List.generate(rowsCount, (_) => TextEditingController());
+
+  return buildContainer(
+    title,
+    note,
+    List.generate(rowsCount, (i) {
+      // 🔹 USER enters percentage manually
+      final percent = double.tryParse(ctrls[i].text) ?? 0;
+
+      // 🔹 Points ONLY from percentage
+      points[i] = calculateFeedbackPoints(percent);
+
+      return [
+        Text("${i + 1}"),
+        textInput(),                // Course Name
+        textInput(),                // Sem-Branch-Sec
+
+        // ✅ A column → USER INPUT
+        numberInput(aCtrls[i]),
+
+        // ❌ B column → COMPLETELY EMPTY
+        const SizedBox.shrink(),
+
+        // ✅ Percentage column → USER INPUT
+        numberInput(ctrls[i]),
+
+        // ✅ Points auto
+        Text(
+          points[i] == 0 ? "-" : points[i].toString(),
+          style: TextStyle(color: pointColor(points[i])),
+        ),
+
+        // Average (on save)
+        Text(
+          i == rowsCount - 1 && savedAvg != 0
+              ? savedAvg.toStringAsFixed(1)
+              : "-",
+        ),
+      ];
+    }),
+    onSave,
+  );
+}
 
   Widget buildContainer(
     String title,
@@ -250,18 +294,20 @@ class _TeachingPageState extends State<TeachingPage> {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingRowColor:
-                MaterialStateProperty.all(const Color(0xFFFFE0B2)),
+                WidgetStateProperty.all(const Color(0xFFFFE0B2)),
             columns: const [
               DataColumn(label: Text("S.No")),
-              DataColumn(label: Text("Course / Students")),
+              DataColumn(label: Text("Course Name")),
               DataColumn(label: Text("Sem-Branch-Sec")),
-              DataColumn(label: Text("A / Feedback")),
-              DataColumn(label: Text("B")),
-              DataColumn(label: Text("Percentage")),
+              DataColumn(label: Text("No.of Students Appeared(A)")),
+              DataColumn(label: Text("No.of Students Passed (B)")),
+              DataColumn(label: Text("Pass Percentage (B/A*100)")),
               DataColumn(label: Text("Points Claimed")),
               DataColumn(label: Text("Average Points")),
             ],
-            rows: rows.map((r) => DataRow(cells: r.map(DataCell.new).toList())).toList(),
+            rows: rows
+                .map((r) => DataRow(cells: r.map(DataCell.new).toList()))
+                .toList(),
           ),
         ),
         const SizedBox(height: 12),
@@ -278,8 +324,17 @@ class _TeachingPageState extends State<TeachingPage> {
   }
 
   Widget buildSummaryTable() {
-    final sections = ["1.1 Pass %", "1.2 Feedback", "1.3 Proctoring", "1.4 CO Attainment"];
+    final sections = [
+      "1.1 Pass %",
+      "1.2 Feedback",
+      "1.3 Proctoring",
+      "1.4 CO Attainment"
+    ];
+
     final averages = [s1Avg, s2Avg, s3Avg, s4Avg];
+
+    totalTeachingAvg =
+        averages.reduce((a, b) => a + b).toInt();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -289,24 +344,46 @@ class _TeachingPageState extends State<TeachingPage> {
         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text("Teaching Summary",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text(
+          "Teaching Summary",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: MaterialStateProperty.all(const Color(0xFFB2EBF2)),
-            columns: const [
-              DataColumn(label: Text("Section")),
-              DataColumn(label: Text("Average Points")),
-            ],
-            rows: List.generate(
-                sections.length,
-                (i) => DataRow(cells: [
-                      DataCell(Text(sections[i])),
-                      DataCell(Text(averages[i] == 0 ? "-" : averages[i].toStringAsFixed(1))),
-                    ])),
-          ),
+        DataTable(
+          headingRowColor:
+              WidgetStateProperty.all(const Color(0xFFB2EBF2)),
+          columns: const [
+            DataColumn(label: Text("Section")),
+            DataColumn(label: Text("Average Points")),
+          ],
+          rows: [
+            ...List.generate(
+              sections.length,
+              (i) => DataRow(cells: [
+                DataCell(Text(sections[i])),
+                DataCell(Text(
+                    averages[i] == 0 ? "-" : averages[i].toStringAsFixed(1))),
+              ]),
+            ),
+            DataRow(
+              color: WidgetStateProperty.all(Colors.green.shade100),
+              cells: [
+                const DataCell(
+                  Text("TOTAL TEACHING Average Points",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                DataCell(
+                  Text(
+                    totalTeachingAvg == 0
+                        ? "-"
+                        : totalTeachingAvg.toStringAsFixed(1),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ]),
     );

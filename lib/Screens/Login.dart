@@ -33,8 +33,8 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void login() {
-    if (usernameController.text == savedUsername &&
-        passwordController.text == savedPassword) {
+    if (usernameController.text == savedEmail &&
+        passwordController.text == savedPassword ) {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Text("Login Successful ✅")),
       );
@@ -51,69 +51,85 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFFFF7EE),
       body: Center(
-        child: Container(
-          width: 360,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 12,
-                offset: Offset(0, 6),
-              )
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Login",
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 360,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  )
+                ],
               ),
-              const SizedBox(height: 20),
-
-              _field("User Name", usernameController),
-              const SizedBox(height: 16),
-              _field("Password", passwordController, isPassword: true),
-              const SizedBox(height: 22),
-
-              ScaleTransition(
-                scale: _scale,
-                child: GestureDetector(
-                  onTapDown: (_) => _controller.forward(),
-                  onTapUp: (_) {
-                    _controller.reverse();
-                    
-                    login();
-                  },
-                  onTapCancel: () => _controller.reverse(),
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.blue],
-                      ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Login",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Center(
-                      child: Text(
-                        "Login",
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                  ),
+                  const SizedBox(height: 20),
+            
+                  _field("Email", usernameController),
+                  const SizedBox(height: 16),
+                  _field("Password", passwordController, isPassword: true),
+                  const SizedBox(height: 22),
+            
+                  ScaleTransition(
+                    scale: _scale,
+                    child: GestureDetector(
+                      onTapDown: (_) => _controller.forward(),
+                      onTapUp: (_) {
+                        _controller.reverse();
+                        
+                        login();
+                      },
+                      onTapCancel: () => _controller.reverse(),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          gradient: const LinearGradient(
+                            colors: [Colors.orange, Colors.blue],
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Login",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  
+                ],
+              ),
+            ),SizedBox(height: 20,),
+            GestureDetector(
+                onTap: (){
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => SignUpScreen()));
+                },
+                child: Text(
+                  "I don't have an account? ",
+                  style: GoogleFonts.poppins(color: Colors.red),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

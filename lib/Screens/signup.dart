@@ -1,228 +1,211 @@
 import 'package:faculty_app1/Screens/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-String? savedUsername;
-String? savedPassword;
-class SignUpScreen extends StatelessWidget {
-   SignUpScreen({super.key});
+
+// 🔴 IMPORTANT: Login page kosam global variables
+String savedEmail = "";
+String savedPassword = "";
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _StaffSignUpPageState();
+}
+
+class _StaffSignUpPageState extends State<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Controllers
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController employIDController = TextEditingController();
+  final TextEditingController nameEmpIdController = TextEditingController();
+  final TextEditingController designationDeptController =
+      TextEditingController();
+  final TextEditingController dateOfJoiningController =
+      TextEditingController();
+  final TextEditingController qualificationController =
+      TextEditingController();
+  final TextEditingController scopusIdController = TextEditingController();
+  final TextEditingController webOfScienceIdController =
+      TextEditingController();
+  final TextEditingController orcidIdController = TextEditingController();
+
+  // 🔹 Qualification dropdown data
+  String? selectedQualification;
+  final List<String> qualificationOptions = ["PhD", "Non-PhD"];
+
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
+      backgroundColor: const Color(0xFFFFF5EA),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-
-              /// LOGO + TITLE
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor: Colors.white,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          width: 3,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "AU",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
+          child: Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              width: 420,
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        "Staff Sign Up",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "ADITYA",
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
+                    const SizedBox(height: 20),
+
+                    _buildField("User Name", usernameController),
+                    _buildField("Password", passwordController,
+                        obscure: true),
+
+                    const SizedBox(height: 15),
+                    const Text(
+                      "PART-A : Personal Information",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const Divider(),
+
+                    _buildField("Name", nameEmpIdController),
+                    _buildField("Employ-ID", employIDController),
+                    _buildField("Designation & Department",
+                        designationDeptController),
+                    _buildField("Date of Joining",
+                        dateOfJoiningController),
+
+                    /// 🔹 QUALIFICATION DROPDOWN (FIXED)
+                    _buildQualificationField(),
+
+                    _buildField("Scopus ID", scopusIdController),
+                    _buildField("Web of Science ID",
+                        webOfScienceIdController),
+                    _buildField("ORCID ID", orcidIdController),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            savedEmail = usernameController.text;
+                            savedPassword = passwordController.text;
+
+                            final staffData = {
+                              "username": usernameController.text,
+                              "nameEmpId": nameEmpIdController.text,
+                              "designationDept":
+                                  designationDeptController.text,
+                              "dateOfJoining":
+                                  dateOfJoiningController.text,
+                              "qualification":
+                                  qualificationController.text,
+                              "scopusId": scopusIdController.text,
+                              "webOfScienceId":
+                                  webOfScienceIdController.text,
+                              "orcidId": orcidIdController.text,
+                            };
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => LoginScreen(),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text("Sign Up"),
                       ),
-                      Text(
-                        "UNIVERSITY",
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
+                    ),
+
+                    const SizedBox(height: 22),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => LoginScreen()),
+                        );
+                      },
+                      child: Text(
+                        "Already have an account?",
+                        style: GoogleFonts.poppins(color: Colors.red),
                       ),
-                    ],
-                  )
-                ],
+                    ),
+                  ],
+                ),
               ),
-
-              const SizedBox(height: 40),
-
-              /// CARDS
-              Row(
-                children: const [
-                  Expanded(child: SignUpCard(title: "Staff Sign Up")),
-                  SizedBox(width: 20),
-                  Expanded(child: SignUpCard(title: "Admin Sign Up")),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              Text(
-                "Already have an account? ",
-                style: GoogleFonts.poppins(),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-class SignUpCard extends StatefulWidget {
-  final String title;
-  const SignUpCard({super.key, required this.title});
-
-  @override
-  State<SignUpCard> createState() => _SignUpCardState();
-}
-
-class _SignUpCardState extends State<SignUpCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scale;
-  final TextEditingController usernameController = TextEditingController();
-    final TextEditingController userpasswordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
-    _scale = Tween(begin: 1.0, end: 0.95).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-  Widget _inputField(
-  String label,
-  String hint, {
-  bool isPassword = false,
-  required TextEditingController controller,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: GoogleFonts.poppins()),
-      const SizedBox(height: 6),
-      TextField(
+  // 🔹 NORMAL TEXT FIELD
+  Widget _buildField(String label, TextEditingController controller,
+      {bool obscure = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: obscure,
+        validator: (value) =>
+            value == null || value.isEmpty ? "Enter $label" : null,
         decoration: InputDecoration(
-          hintText: hint,
+          labelText: label,
           filled: true,
-          fillColor: const Color(0xFFFFF3E6),
+          fillColor: const Color(0xFFFFEEDD),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
         ),
       ),
-    ],
-  );
-}
+    );
+  }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scale,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 12,
-              offset: Offset(0, 6),
+  // 🔹 QUALIFICATION DROPDOWN 
+  Widget _buildQualificationField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DropdownButtonFormField<String>(
+        value: selectedQualification,
+        items: qualificationOptions
+            .map(
+              (q) => DropdownMenuItem(
+                value: q,
+                child: Text(q),
+              ),
             )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDADDE3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Text(
-                  widget.title,
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            _inputField("User Name", "Enter username",controller: usernameController),
-            const SizedBox(height: 16),
-            _inputField("Password", "Enter password", isPassword: true,controller: userpasswordController),
-            const SizedBox(height: 22),
-
-            /// SIGN UP BUTTON WITH ANIMATION
-            GestureDetector(
-              onTapDown: (_) => _controller.forward(),
-              onTapUp: (_) {
-                _controller.reverse();
-                savedUsername = usernameController.text;
-                savedPassword = userpasswordController.text;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Signup Succesfully")),
-                );
-                Navigator.push(context,MaterialPageRoute(builder: (_)=>LoginScreen()));
-              },
-              onTapCancel: () => _controller.reverse(),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: const LinearGradient(
-                    colors: [Colors.orange, Colors.blue],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    "Sign Up",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedQualification = value;
+            
+          });
+        },
+        validator: (value) =>
+            value == null ? "Please select Qualification" : null,
+        decoration: InputDecoration(
+          labelText: "Qualification",
+          filled: true,
+          fillColor: const Color(0xFFFFEEDD),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );

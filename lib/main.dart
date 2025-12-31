@@ -1,3 +1,5 @@
+import 'package:faculty_app1/Screens/portofiloscreen/dashboard.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
 import 'package:faculty_app1/Screens/signup.dart';
 import 'package:flutter/material.dart';
 void main() {
