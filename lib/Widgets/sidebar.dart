@@ -123,7 +123,7 @@ class Sidebar extends StatelessWidget {
             _menuItem(
               "Expertise\n/value Addition",
               Icons.trending_up,
-              ExpertiseRecognitionPage(),
+              ExpertiseValueAddition(),
             ),
             _menuItem(
               "Administration",
