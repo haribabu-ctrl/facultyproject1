@@ -1,11 +1,15 @@
+import 'dart:typed_data';
+import 'dart:html' as html; // WEB
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:open_filex/open_filex.dart';
 
 class GuidingPhDScholar extends StatefulWidget {
   const GuidingPhDScholar({super.key});
 
   @override
-  State<GuidingPhDScholar> createState() =>
-      _GuidingPhDScholarsPageState();
+  State<GuidingPhDScholar> createState() => _GuidingPhDScholarsPageState();
 }
 
 class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
@@ -35,9 +39,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
             const SizedBox(height: 12),
             _tableHeader(),
             const SizedBox(height: 6),
-            ...rows.asMap().entries.map((e) {
-              return _tableRow(e.key, e.value);
-            }),
+            ...rows.asMap().entries.map((e) => _tableRow(e.key, e.value)),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -53,8 +55,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
                 const SizedBox(width: 10),
                 if (rows.length > 1)
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () {
                       setState(() {
                         rows.removeLast();
@@ -101,7 +102,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
           _HeaderCell("University", flex: 3),
           _HeaderCell("Month & Year of Admission / Award", flex: 3),
           _HeaderCell("Pursuing / Awarded", flex: 2),
-          _HeaderCell("Upload PDF", flex: 2), // 🆕
+          _HeaderCell("Upload PDF", flex: 2),
           _HeaderCell("Points claimed", flex: 2),
         ],
       ),
@@ -111,22 +112,17 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
   // ================= TABLE ROW =================
   Widget _tableRow(int index, PhDRow row) {
     return Container(
+      key: ValueKey(row),
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
           _cell(Text("${index + 1}"), 1),
-
           _cell(_textField(row.nameController), 4),
-
           _cell(_textField(row.universityController), 3),
-
           _cell(_textField(row.monthYearController), 3),
-
           _cell(
             DropdownButtonFormField<String>(
               isExpanded: true,
@@ -150,13 +146,19 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
             2,
           ),
 
-          // 🆕 PDF UPLOAD COLUMN
+          // ================= PDF COLUMN =================
           _cell(
             OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  row.pdfAttached = true;
-                });
+              onPressed: () async {
+                //  Already attached → OPEN PDF
+                if (row.pdfAttached) {
+                  openPdf(row);
+                  return;
+                }
+
+                //  Pick PDF
+                await pickPdfForRow(row);
+                setState(() {}); 
               },
               icon: Icon(
                 row.pdfAttached ? Icons.check_circle : Icons.upload_file,
@@ -233,6 +235,36 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
       ),
     );
   }
+
+  // ================= PDF UTILS =================
+  Future<void> pickPdfForRow(PhDRow row) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: kIsWeb, // 🔹 important for web
+    );
+
+    if (result == null) return;
+
+    if (kIsWeb) {
+      row.pdfBytes = result.files.single.bytes;
+      row.pdfName = result.files.single.name;
+    } else {
+      row.pdfPath = result.files.single.path;
+    }
+
+    row.pdfAttached = true;
+  }
+
+  void openPdf(PhDRow row) {
+    if (kIsWeb && row.pdfBytes != null) {
+      final blob = html.Blob([row.pdfBytes], 'application/pdf');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      html.window.open(url, '_blank');
+    } else if (!kIsWeb && row.pdfPath != null) {
+      OpenFilex.open(row.pdfPath!);
+    }
+  }
 }
 
 // ================= HEADER CELL =================
@@ -266,7 +298,15 @@ class PhDRow {
 
   String? status;
   double points = 0;
-  bool pdfAttached = false; // 🆕
+
+  bool pdfAttached = false;
+
+  // 🔹 WEB
+  Uint8List? pdfBytes;
+  String? pdfName;
+
+  // 🔹 MOBILE
+  String? pdfPath;
 
   void calculatePoints() {
     if (status == "Pursuing") {
