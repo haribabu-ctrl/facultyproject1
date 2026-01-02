@@ -1,46 +1,280 @@
 import 'package:flutter/material.dart';
 
-class PhdGuiding extends StatelessWidget {
+class GuidingPhDScholar extends StatefulWidget {
+  const GuidingPhDScholar({super.key});
+
+  @override
+  State<GuidingPhDScholar> createState() =>
+      _GuidingPhDScholarsPageState();
+}
+
+class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
+  List<PhDRow> rows = [PhDRow()];
+
+  double get totalPoints {
+    double sum = 0;
+    for (var r in rows) {
+      sum += r.points;
+    }
+    return sum;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(16),
-      child: Padding(
-        padding: EdgeInsets.all(16),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("2.2 Guiding Ph.D Scholars"),
+        backgroundColor: Colors.indigo,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("2.2 Guiding Ph.D Scholars",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            DataTable(columns: const [
-              DataColumn(label: Text("S.No")),
-              DataColumn(label: Text("Scholar Name")),
-              DataColumn(label: Text("University")),
-              DataColumn(label: Text("Month & Year")),
-              DataColumn(label: Text("Status")),
-              DataColumn(label: Text("Points")),
-            ], rows: [
-              DataRow(cells: [
-                DataCell(Text("1")),
-                DataCell(Text("")),
-                DataCell(Text("")),
-                DataCell(Text("")),
-                DataCell(
-                  DropdownButton(
-                    items: [
-                      DropdownMenuItem(value: "Pursuing", child: Text("Pursuing")),
-                      DropdownMenuItem(value: "Awarded", child: Text("Awarded")),
-                    ],
-                    onChanged: (_) {},
-                  ),
+            _headingCard(),
+            const SizedBox(height: 12),
+            _tableHeader(),
+            const SizedBox(height: 6),
+            ...rows.asMap().entries.map((e) {
+              return _tableRow(e.key, e.value);
+            }),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      rows.add(PhDRow());
+                    });
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add Row"),
                 ),
-                DataCell(Text("")),
-              ]),
-            ])
+                const SizedBox(width: 10),
+                if (rows.length > 1)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        rows.removeLast();
+                      });
+                    },
+                    icon: const Icon(Icons.remove),
+                    label: const Text("Remove Row"),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _totalCard(),
           ],
         ),
       ),
     );
+  }
+
+  // ================= HEADING =================
+  Widget _headingCard() {
+    return Card(
+      color: Colors.grey.shade200,
+      child: const Padding(
+        padding: EdgeInsets.all(12),
+        child: Text(
+          "2.2 Guiding Ph.D Scholars:\n"
+          "Pursuing – 2 Points\n"
+          "Awarded – 20 Points",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  // ================= TABLE HEADER =================
+  Widget _tableHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      color: Colors.indigo.shade100,
+      child: const Row(
+        children: [
+          _HeaderCell("S.No", flex: 1),
+          _HeaderCell("Name of the Research Scholar (FT/PT)", flex: 4),
+          _HeaderCell("University", flex: 3),
+          _HeaderCell("Month & Year of Admission / Award", flex: 3),
+          _HeaderCell("Pursuing / Awarded", flex: 2),
+          _HeaderCell("Upload PDF", flex: 2), // 🆕
+          _HeaderCell("Points claimed", flex: 2),
+        ],
+      ),
+    );
+  }
+
+  // ================= TABLE ROW =================
+  Widget _tableRow(int index, PhDRow row) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+      child: Row(
+        children: [
+          _cell(Text("${index + 1}"), 1),
+
+          _cell(_textField(row.nameController), 4),
+
+          _cell(_textField(row.universityController), 3),
+
+          _cell(_textField(row.monthYearController), 3),
+
+          _cell(
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: row.status,
+              hint: const Text("Select"),
+              items: const [
+                DropdownMenuItem(value: "Pursuing", child: Text("Pursuing")),
+                DropdownMenuItem(value: "Awarded", child: Text("Awarded")),
+              ],
+              onChanged: (val) {
+                setState(() {
+                  row.status = val;
+                  row.calculatePoints();
+                });
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+            2,
+          ),
+
+          // 🆕 PDF UPLOAD COLUMN
+          _cell(
+            OutlinedButton.icon(
+              onPressed: () {
+                setState(() {
+                  row.pdfAttached = true;
+                });
+              },
+              icon: Icon(
+                row.pdfAttached ? Icons.check_circle : Icons.upload_file,
+                color: row.pdfAttached ? Colors.green : Colors.indigo,
+              ),
+              label: Text(
+                row.pdfAttached ? "Attached" : "Upload",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            2,
+          ),
+
+          _cell(
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                row.points.toStringAsFixed(0),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _textField(TextEditingController c) {
+    return TextField(
+      controller: c,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        isDense: true,
+      ),
+    );
+  }
+
+  Widget _cell(Widget child, int flex) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: child,
+      ),
+    );
+  }
+
+  // ================= TOTAL =================
+  Widget _totalCard() {
+    return Card(
+      elevation: 4,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.green.shade400, Colors.indigo.shade400],
+          ),
+        ),
+        child: Text(
+          "Self-Assessment Points : ${totalPoints.toStringAsFixed(0)}",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+// ================= HEADER CELL =================
+class _HeaderCell extends StatelessWidget {
+  final String text;
+  final int flex;
+
+  const _HeaderCell(this.text, {this.flex = 1});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= ROW MODEL =================
+class PhDRow {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController universityController = TextEditingController();
+  TextEditingController monthYearController = TextEditingController();
+
+  String? status;
+  double points = 0;
+  bool pdfAttached = false; // 🆕
+
+  void calculatePoints() {
+    if (status == "Pursuing") {
+      points = 2;
+    } else if (status == "Awarded") {
+      points = 20;
+    } else {
+      points = 0;
+    }
   }
 }

@@ -6,6 +6,7 @@ import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patent
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3bookschaptersConfirrence.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.1paperpublications.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,7 @@ class Sidebar extends StatelessWidget {
                       const Icon(Icons.school, color: Colors.deepOrange),
                   title: const Text("Guiding Ph.D Scholars"),
                   onTap: () =>
-                      onPageSelected(PhdGuiding()),
+                      onPageSelected(GuidingPhDScholar()),
                 ),
                 ListTile(
                   leading:
@@ -98,7 +99,7 @@ class Sidebar extends StatelessWidget {
                   title:
                       const Text("Books / Chapters / Conference"),
                   onTap: () =>
-                      onPageSelected(BooksChapters()),
+                      onPageSelected(BooksChaptersProceeding()),
                 ),
                 ListTile(
                   leading:
@@ -115,7 +116,16 @@ class Sidebar extends StatelessWidget {
                   title:
                       const Text("Novel Products / Technology"),
                   onTap: () =>
-                      onPageSelected(NovelProductsPage()),
+                      onPageSelected(NovelProduct()),
+                ),
+                ListTile(
+                  leading:
+                      const Icon(Icons.lightbulb,
+                          color: Colors.red),
+                  title:
+                      const Text("Project Consultancy"),
+                  onTap: () =>
+                      onPageSelected(ProjectConsultancy()),
                 ),
               ],
             ),
