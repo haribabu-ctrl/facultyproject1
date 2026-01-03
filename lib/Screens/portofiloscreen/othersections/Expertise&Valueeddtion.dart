@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+int expertiseTotalPoints = 0;
 
 class ExpertiseValueAddition extends StatefulWidget {
   const ExpertiseValueAddition({super.key});
@@ -63,13 +64,28 @@ class _ExpertiseValueAdditionPageState
 
   int get total32 =>
       table32.fold(0, (s, r) => s + r['points'] as int).clamp(0, 10);
+  int get total31and32 { return total31 + total32;}
+  
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
 
     return Scaffold(
+      
+  appBar: AppBar(
+    title: const Text("Expertise Value Addition"),
+    actions: [
+      IconButton(
+        icon: const Icon(Icons.check),
+        onPressed: () {
+         expertiseTotalPoints = total31and32;
+        },
+      )
+    ],
+  ),
       backgroundColor: t.colorScheme.primary.withOpacity(.05),
+  
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

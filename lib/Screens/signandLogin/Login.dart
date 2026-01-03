@@ -1,7 +1,9 @@
-import 'package:faculty_app1/Screens/portofiloscreen/dashboard.dart';
-import 'package:faculty_app1/Screens/signup.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
+import 'package:faculty_app1/Screens/signandLogin/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/globaldata.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

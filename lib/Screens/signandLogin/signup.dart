@@ -1,10 +1,7 @@
-import 'package:faculty_app1/Screens/Login.dart';
+import 'package:faculty_app1/Screens/signandLogin/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// 🔴 IMPORTANT: Login page kosam global variables
-String savedEmail = "";
-String savedPassword = "";
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/globaldata.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -98,33 +95,32 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
                       height: 45,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            savedEmail = usernameController.text;
-                            savedPassword = passwordController.text;
+  if (_formKey.currentState!.validate()) {
 
-                            final staffData = {
-                              "username": usernameController.text,
-                              "nameEmpId": nameEmpIdController.text,
-                              "designationDept":
-                                  designationDeptController.text,
-                              "dateOfJoining":
-                                  dateOfJoiningController.text,
-                              "qualification":
-                                  qualificationController.text,
-                              "scopusId": scopusIdController.text,
-                              "webOfScienceId":
-                                  webOfScienceIdController.text,
-                              "orcidId": orcidIdController.text,
-                            };
+    savedEmail = usernameController.text;
+    savedPassword = passwordController.text;
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => LoginScreen(),
-                              ),
-                            );
-                          }
-                        },
+    staffProfileData = {
+      "username": usernameController.text,
+      "password": passwordController.text,
+      "name": nameEmpIdController.text,
+      "employeeId": employIDController.text,
+      "designationDept": designationDeptController.text,
+      "dateOfJoining": dateOfJoiningController.text,
+      "qualification": selectedQualification, // ✅ FIX
+      "scopusId": scopusIdController.text,
+      "webOfScienceId": webOfScienceIdController.text,
+      "orcidId": orcidIdController.text,
+    };
+
+    debugPrint(staffProfileData.toString());
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => LoginScreen()),
+    );
+  }
+},
                         child: const Text("Sign Up"),
                       ),
                     ),

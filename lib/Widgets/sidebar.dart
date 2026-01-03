@@ -1,14 +1,14 @@
-import 'package:faculty_app1/Screens/portofiloscreen/Expertise&recognition.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/administration.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/dashboard.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/portofilopage.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/administration.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/portofilopage.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patents.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3bookschaptersConfirrence.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.1paperpublications.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
 import 'package:flutter/material.dart';
 class Sidebar extends StatelessWidget {
   final Function(Widget) onPageSelected;

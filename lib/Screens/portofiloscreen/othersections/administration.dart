@@ -1,4 +1,6 @@
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
 import 'package:flutter/material.dart';
+int administrationtotal = 0;
 
 class AdministrationPage extends StatefulWidget {
   const AdministrationPage({super.key});
@@ -48,7 +50,10 @@ class _AdministrationPageState extends State<AdministrationPage>
       total += int.tryParse(c.text) ?? 0;
     }
     return total > maxTotal ? maxTotal : total;
+    
   }
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +231,17 @@ class _AdministrationPageState extends State<AdministrationPage>
                 color: Color(0xFFF57C00),
               ),
             ),
-          )
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed:()=>{
+              setState(() {
+                administrationtotal= totalPoints;
+              }),
+              debugPrint("Administration Points Saved Successfully"),
+            },
+            child: const Text("Save Section"),
+          ),
         ],
       ),
     );

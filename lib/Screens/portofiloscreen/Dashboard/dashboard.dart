@@ -1,7 +1,7 @@
-import 'package:faculty_app1/Screens/portofiloscreen/portofilopage.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/portofilopage.dart';
 import 'package:faculty_app1/Widgets/sidebar.dart';
 import 'package:flutter/material.dart';
-import 'teaching.dart';
+import '../othersections/teaching.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -26,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           Sidebar(onPageSelected: changePage),
 
-          /// PAGE TRANSITION ANIMATION
+          /// PAGE TRANSITION 
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 400),

@@ -1,4 +1,9 @@
-import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/userdata.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/administration.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.1paperpublications.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
 import 'package:flutter/material.dart';
 
 class FacultyPortfolioPage extends StatefulWidget {
@@ -28,8 +33,8 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   final Map<String, double> scores = {
     "Teaching": totalTeachingAvg.toDouble(),
     "Research": 0,
-    "Value Addition": 0,
-    "Administration": 0,
+    "Value Addition": expertiseTotalPoints.toDouble(),
+    "Administration": administrationtotal.toDouble(),
     "Interpersonal Skills": 0,
   };
 
@@ -55,6 +60,30 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
         title: const Text("Faculty Portfolio"),
         centerTitle: true,
         backgroundColor: const Color(0xffFF7A18),
+         actions: [
+      Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const UserProfilePage(),
+              ),
+            );
+          },
+          child: const CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.white,
+            child: Icon(
+              Icons.person,
+              color: Color(0xFFF57C00),
+            ),
+          ),
+        ),
+      ),
+],
+
       ),
       backgroundColor: const Color(0xffF6F6F6),
       body: SingleChildScrollView(
@@ -121,66 +150,69 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     final max = maxScores[title]!;
     final value = scores[title]!;
 
-    return Container(
-      width: 300,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor:
-                    indicatorColor(value, max).withOpacity(0.15),
-                child: Icon(
-                  icons[title],
-                  color: indicatorColor(value, max),
+    return GestureDetector(
+      onTap: () => navigateToPage(context, title),
+      child: Container(
+        width: 300,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor:
+                      indicatorColor(value, max).withOpacity(0.15),
+                  child: Icon(
+                    icons[title],
+                    color: indicatorColor(value, max),
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                "Max ${max.toInt()}",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+                const Spacer(),
+                Text(
+                  "Max ${max.toInt()}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 10),
-
-          /// SCORE DISPLAY (TextField REMOVED)
-          Text(
-            "Score: ${value.toInt()}",
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-
-          const SizedBox(height: 14),
-          LinearProgressIndicator(
-            value: value / max,
-            minHeight: 6,
-            color: indicatorColor(value, max),
-            backgroundColor: Colors.grey.shade300,
-          ),
-        ],
+            const SizedBox(height: 10),
+      
+            /// SCORE DISPLAY 
+            Text(
+              "Score: ${value.toInt()}",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+      
+            const SizedBox(height: 14),
+            LinearProgressIndicator(
+              value: value / max,
+              minHeight: 6,
+              color: indicatorColor(value, max),
+              backgroundColor: Colors.grey.shade300,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -300,4 +332,29 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
           .toList(),
     );
   }
+}
+void navigateToPage(BuildContext context ,String title){
+  Widget page;
+
+  switch(title) {
+    case "Teaching":
+      page = const TeachingPage();
+      break;
+    case "Research" :
+      page = const PaperPublication();
+      break;
+    case "Value Addition":
+      page = const ExpertiseValueAddition();
+      break;
+      case "Administration":
+      page = const AdministrationPage();
+      break;
+    case "Interpersonal Skills":
+      page = const ProjectConsultancy();
+      break;
+    default :
+      return;
+
+  }
+  Navigator.push(context,MaterialPageRoute(builder: (_)=>page),);
 }

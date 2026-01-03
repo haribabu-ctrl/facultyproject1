@@ -1,7 +1,7 @@
-import 'package:faculty_app1/Screens/portofiloscreen/Expertise&recognition.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/dashboard.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/teaching.dart';
-import 'package:faculty_app1/Screens/signup.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
+import 'package:faculty_app1/Screens/signandLogin/signup.dart';
 import 'package:flutter/material.dart';
 void main() {
   runApp(const MyApp());
