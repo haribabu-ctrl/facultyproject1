@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:open_filex/open_filex.dart';
+import 'dart:typed_data';
+
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 /* ======================= MODEL ======================= */
 
@@ -7,13 +14,19 @@ class NovelRow {
   String organization;
   int points;
 
+  bool pdfAttached;
+  String? pdfPath;
+  Uint8List? pdfBytes;
+
   NovelRow({
     this.details = '',
     this.organization = '',
     this.points = 0,
+    this.pdfAttached = false,
+    this.pdfPath,
+    this.pdfBytes,
   });
 
-  // Example organization options
   static const List<String> organizations = [
     "Organization A",
     "Organization B",
@@ -22,10 +35,11 @@ class NovelRow {
   ];
 
   void calculatePoints() {
-    if (organization == "Organization A" || organization == "Organization B") {
-      points = 20; // Implemented
+    if (organization == "Organization A" ||
+        organization == "Organization B") {
+      points = 20;
     } else if (organization.isNotEmpty) {
-      points = 10; // Developed
+      points = 10;
     } else {
       points = 0;
     }
@@ -44,19 +58,16 @@ class NovelProduct extends StatefulWidget {
 class _NovelProductPageState extends State<NovelProduct> {
   List<NovelRow> rows = [NovelRow()];
 
-  int get totalPoints => rows.fold(0, (sum, item) => sum + item.points);
+  int get totalPoints =>
+      rows.fold(0, (sum, item) => sum + item.points);
 
   void addRow() {
-    setState(() {
-      rows.add(NovelRow());
-    });
+    setState(() => rows.add(NovelRow()));
   }
 
   void removeRow() {
     if (rows.length > 1) {
-      setState(() {
-        rows.removeLast();
-      });
+      setState(() => rows.removeLast());
     }
   }
 
@@ -76,11 +87,8 @@ class _NovelProductPageState extends State<NovelProduct> {
             const SizedBox(height: 12),
             _tableHeader(),
             const SizedBox(height: 6),
-            ...rows.asMap().entries.map((entry) {
-              int index = entry.key;
-              NovelRow row = entry.value;
-              return _tableRow(index, row);
-            }),
+            ...rows.asMap().entries
+                .map((e) => _tableRow(e.key, e.value)),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -91,7 +99,8 @@ class _NovelProductPageState extends State<NovelProduct> {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red),
                   onPressed: removeRow,
                   icon: const Icon(Icons.remove),
                   label: const Text("Remove Row"),
@@ -110,14 +119,15 @@ class _NovelProductPageState extends State<NovelProduct> {
   Widget _headingCard() {
     return Card(
       color: Colors.grey.shade200,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
+      child: const Padding(
+        padding: EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               "2.5 Novel products / Technology",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 6),
             Text("(Organization selection batti points automatic)"),
@@ -133,11 +143,16 @@ class _NovelProductPageState extends State<NovelProduct> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       color: Colors.indigo.shade100,
-      child: Row(
-        children: const [
+      child: const Row(
+        children: [
           _HeaderCell("S.No", flex: 1),
-          _HeaderCell("Details of the Novel Product / Technology", flex: 4),
-          _HeaderCell("Name of the Implemented organization", flex: 3),
+          _HeaderCell(
+              "Details of the Novel Product / Technology",
+              flex: 4),
+          _HeaderCell(
+              "Name of the Implemented organization",
+              flex: 3),
+          _HeaderCell("Upload PDF", flex: 2),
           _HeaderCell("Points claimed", flex: 2),
         ],
       ),
@@ -149,34 +164,41 @@ class _NovelProductPageState extends State<NovelProduct> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+        border:
+            Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
           _cell(Text("${index + 1}"), 1),
+
           _cell(
             TextField(
               decoration: const InputDecoration(
-                  hintText: "Enter details",
-                  border: OutlineInputBorder(),
-                  isDense: true),
+                hintText: "Enter details",
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
               onChanged: (v) => row.details = v,
             ),
             4,
           ),
+
           _cell(
             DropdownButtonFormField<String>(
-              value: row.organization.isEmpty ? null : row.organization,
+              value:
+                  row.organization.isEmpty ? null : row.organization,
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(), isDense: true),
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
               items: NovelRow.organizations
-                  .map((e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(
-                          e,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ))
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(e,
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) {
                 setState(() {
@@ -187,6 +209,34 @@ class _NovelProductPageState extends State<NovelProduct> {
             ),
             3,
           ),
+
+          // ===== PDF COLUMN =====
+          _cell(
+            OutlinedButton.icon(
+              onPressed: () async {
+                if (row.pdfAttached) {
+                  openPdf(row);
+                } else {
+                  await pickPdf(row);
+                  setState(() {});
+                }
+              },
+              icon: Icon(
+                row.pdfAttached
+                    ? Icons.check_circle
+                    : Icons.upload_file,
+                color: row.pdfAttached
+                    ? Colors.green
+                    : Colors.indigo,
+              ),
+              label: Text(
+                row.pdfAttached ? "Attached" : "Upload",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            2,
+          ),
+
           _cell(
             Container(
               padding: const EdgeInsets.all(10),
@@ -196,7 +246,8 @@ class _NovelProductPageState extends State<NovelProduct> {
               ),
               child: Text(
                 row.points.toString(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             2,
@@ -225,16 +276,52 @@ class _NovelProductPageState extends State<NovelProduct> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-              colors: [Colors.green.shade400, Colors.indigo.shade400]),
+            colors: [
+              Colors.green.shade400,
+              Colors.indigo.shade400
+            ],
+          ),
         ),
         child: Text(
           "Self-Assessment Points : $totalPoints",
-          style: const TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           textAlign: TextAlign.center,
+          style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ),
     );
+  }
+
+  // ================= PDF LOGIC =================
+  Future<void> pickPdf(NovelRow row) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: kIsWeb,
+    );
+
+    if (result == null) return;
+
+    if (kIsWeb) {
+      row.pdfBytes = result.files.single.bytes;
+    } else {
+      row.pdfPath = result.files.single.path;
+    }
+    row.pdfAttached = true;
+  }
+
+  void openPdf(NovelRow row) {
+    if (kIsWeb && row.pdfBytes != null) {
+      final blob =
+          html.Blob([row.pdfBytes], 'application/pdf');
+      final url =
+          html.Url.createObjectUrlFromBlob(blob);
+      html.window.open(url, '_blank');
+    } else if (!kIsWeb && row.pdfPath != null) {
+      OpenFilex.open(row.pdfPath!);
+    }
   }
 }
 

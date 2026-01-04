@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:open_filex/open_filex.dart';
+import 'dart:typed_data';
 
+// Web support
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 class BooksChaptersProceeding extends StatefulWidget {
   const BooksChaptersProceeding({super.key});
 
@@ -12,19 +19,15 @@ class _BooksChaptersProceedingsPageState
     extends State<BooksChaptersProceeding> {
   List<BookRow> rows = [BookRow()];
 
-  double get totalPoints {
-    double sum = 0;
-    for (var r in rows) {
-      sum += r.points;
-    }
-    return sum;
-  }
+  double get totalPoints =>
+      rows.fold(0, (sum, r) => sum + r.points);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("2.3 Books / Chapters / Conference Proceedings"),
+        title:
+            const Text("2.3 Books / Chapters / Conference Proceedings"),
         backgroundColor: Colors.indigo,
       ),
       body: SingleChildScrollView(
@@ -36,17 +39,14 @@ class _BooksChaptersProceedingsPageState
             const SizedBox(height: 12),
             _tableHeader(),
             const SizedBox(height: 6),
-            ...rows.asMap().entries.map((e) {
-              return _tableRow(e.key, e.value);
-            }),
+            ...rows.asMap().entries.map(
+                (e) => _tableRow(e.key, e.value)),
             const SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
-                    setState(() {
-                      rows.add(BookRow());
-                    });
+                    setState(() => rows.add(BookRow()));
                   },
                   icon: const Icon(Icons.add),
                   label: const Text("Add Row"),
@@ -57,9 +57,7 @@ class _BooksChaptersProceedingsPageState
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red),
                     onPressed: () {
-                      setState(() {
-                        rows.removeLast();
-                      });
+                      setState(() => rows.removeLast());
                     },
                     icon: const Icon(Icons.remove),
                     label: const Text("Remove Row"),
@@ -120,8 +118,7 @@ class _BooksChaptersProceedingsPageState
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
+            bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
@@ -179,36 +176,32 @@ class _BooksChaptersProceedingsPageState
             3,
           ),
 
-          // ✅ REAL PDF PICKER
-          // _cell(
-          //   OutlinedButton.icon(
-          //     onPressed: () async {
-          //       FilePickerResult? result =
-          //           await FilePicker.platform.pickFiles(
-          //         type: FileType.custom,
-          //         allowedExtensions: ['pdf'],
-          //       );
-
-          //       if (result != null) {
-          //         setState(() {
-          //           row.pdfName = result.files.single.name;
-          //         });
-          //       }
-          //     },
-          //     icon: Icon(
-          //       row.pdfName != null
-          //           ? Icons.check_circle
-          //           : Icons.upload_file,
-          //       color:
-          //           row.pdfName != null ? Colors.green : Colors.indigo,
-          //     ),
-          //     label: Text(
-          //       row.pdfName != null ? "Attached" : "Upload",
-          //       overflow: TextOverflow.ellipsis,
-          //     ),
-          //   ),
-          //   2,
-          // ),
+          // ================= REAL PDF UPLOAD =================
+          _cell(
+            OutlinedButton.icon(
+              onPressed: () async {
+                if (row.pdfAttached) {
+                  openPdf(row);
+                } else {
+                  await pickPdf(row);
+                  setState(() {});
+                }
+              },
+              icon: Icon(
+                row.pdfAttached
+                    ? Icons.check_circle
+                    : Icons.upload_file,
+                color: row.pdfAttached
+                    ? Colors.green
+                    : Colors.indigo,
+              ),
+              label: Text(
+                row.pdfAttached ? "Attached" : "Upload",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            2,
+          ),
 
           _cell(
             Container(
@@ -219,7 +212,8 @@ class _BooksChaptersProceedingsPageState
               ),
               child: Text(
                 row.points.toStringAsFixed(0),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             2,
@@ -253,15 +247,46 @@ class _BooksChaptersProceedingsPageState
         ),
         child: Text(
           "Self-Assessment Points (Max: 10) : ${totalPoints.toStringAsFixed(0)}",
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
           textAlign: TextAlign.center,
+          style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ),
     );
+  }
+
+  // ================= PDF FUNCTIONS =================
+  Future<void> pickPdf(BookRow row) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: kIsWeb,
+    );
+
+    if (result == null) return;
+
+    if (kIsWeb) {
+      row.pdfBytes = result.files.single.bytes;
+      row.pdfName = result.files.single.name;
+    } else {
+      row.pdfPath = result.files.single.path;
+    }
+
+    row.pdfAttached = true;
+  }
+
+  void openPdf(BookRow row) {
+    if (kIsWeb && row.pdfBytes != null) {
+      final blob =
+          html.Blob([row.pdfBytes], 'application/pdf');
+      final url =
+          html.Url.createObjectUrlFromBlob(blob);
+      html.window.open(url, '_blank');
+    } else if (!kIsWeb && row.pdfPath != null) {
+      OpenFilex.open(row.pdfPath!);
+    }
   }
 }
 
@@ -276,25 +301,29 @@ class _HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-// ================= ROW MODEL =================
+// ================= MODEL =================
 class BookRow {
-  TextEditingController detailsController = TextEditingController();
-  TextEditingController publisherController = TextEditingController();
+  TextEditingController detailsController =
+      TextEditingController();
+  TextEditingController publisherController =
+      TextEditingController();
 
   String? category;
   double points = 0;
+
+  // PDF
+  bool pdfAttached = false;
+  String? pdfPath;
+  Uint8List? pdfBytes;
   String? pdfName;
 
   void calculatePoints() {

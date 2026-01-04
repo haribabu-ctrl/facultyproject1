@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:html' as html;
+
 int expertiseTotalPoints = 0;
 
 class ExpertiseValueAddition extends StatefulWidget {
@@ -11,13 +15,17 @@ class ExpertiseValueAddition extends StatefulWidget {
 
 class _ExpertiseValueAdditionPageState
     extends State<ExpertiseValueAddition> {
-  // ======================= 3.1 Dynamic =======================
+
+  // ======================= 3.1 =======================
   List<Map<String, dynamic>> table31 = [
     {
       'event': 'Conference',
       'role': 'Organized',
       'duration': '',
       'points': 10,
+      'pdfAttached': false,
+      'pdfBytes': null,
+      'pdfPath': null,
     }
   ];
 
@@ -28,9 +36,15 @@ class _ExpertiseValueAdditionPageState
     'Guest Lecture / Workshop / Event',
   ];
 
-  // ======================= 3.2 Dynamic =======================
+  // ======================= 3.2 =======================
   List<Map<String, dynamic>> table32 = [
-    {'type': 'Member of BOG/GB/AC/BOS', 'points': 5}
+    {
+      'type': 'Member of BOG/GB/AC/BOS',
+      'points': 5,
+      'pdfAttached': false,
+      'pdfBytes': null,
+      'pdfPath': null,
+    }
   ];
 
   final Map<String, int> expertisePoints = {
@@ -64,38 +78,65 @@ class _ExpertiseValueAdditionPageState
 
   int get total32 =>
       table32.fold(0, (s, r) => s + r['points'] as int).clamp(0, 10);
-  int get total31and32 { return total31 + total32;}
-  
+
+  int get total31and32 => total31 + total32;
+
+  // ======================= PDF =======================
+
+  Future<void> pickPdf(Map<String, dynamic> row) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: kIsWeb,
+    );
+
+    if (result == null) return;
+
+    if (kIsWeb) {
+      row['pdfBytes'] = result.files.single.bytes;
+    } else {
+      row['pdfPath'] = result.files.single.path;
+    }
+
+    row['pdfAttached'] = true;
+    setState(() {});
+  }
+
+  void openPdf(Map<String, dynamic> row) {
+    if (kIsWeb && row['pdfBytes'] != null) {
+      final blob = html.Blob([row['pdfBytes']], 'application/pdf');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      html.window.open(url, '_blank');
+    }
+  }
+
+  // ======================= UI =======================
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
 
     return Scaffold(
-      
-  appBar: AppBar(
-    title: const Text("Expertise Value Addition"),
-    actions: [
-      IconButton(
-        icon: const Icon(Icons.check),
-        onPressed: () {
-         expertiseTotalPoints = total31and32;
-        },
-      )
-    ],
-  ),
+      appBar: AppBar(
+        title: const Text("Expertise Value Addition"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: () {
+              expertiseTotalPoints = total31and32;
+            },
+          )
+        ],
+      ),
       backgroundColor: t.colorScheme.primary.withOpacity(.05),
-  
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _title(t, "3.1 Faculty Resource Utilization"),
-          _card(_reference31()),
           _card(_dynamic31()),
           _total(t, total31),
           const SizedBox(height: 40),
           _title(t, "3.2 Faculty Expertise / Recognition / Contribution"),
-          _card(_reference32()),
           _card(_dynamic32()),
           _total(t, total32),
         ]),
@@ -103,56 +144,12 @@ class _ExpertiseValueAdditionPageState
     );
   }
 
-  // ======================= TABLES =======================
-
-  Widget _reference31() => Table(
-        border: TableBorder.all(),
-        columnWidths: const {
-          0: FlexColumnWidth(3),
-          1: FlexColumnWidth(5),
-          2: FlexColumnWidth(2),
-          3: FlexColumnWidth(2),
-        },
-        children: const [
-          TableRow(children: [
-            _TH("Event"),
-            _TH("Organized"),
-            _TH("Resource Person"),
-            _TH("Participated"),
-          ]),
-          TableRow(children: [
-            _TC("Conference"),
-            _TC(
-                "10 points for Chair, Co-Chair, Finance, Publication, Registration Chair"),
-            _TC("2 points/session"),
-            _TC("1 point/day"),
-          ]),
-          TableRow(children: [
-            _TC("STTP / Refresher (Min 2 Weeks)"),
-            _TC("10 points for Convenor, Co-Convenor & Coordinator"),
-            _TC("2 points/session"),
-            _TC("1 point/day"),
-          ]),
-          TableRow(children: [
-            _TC("FDP / Symposium (Min 1 Week)"),
-            _TC("10 points for Convenor, Co-Convenor & Coordinator"),
-            _TC("2 points/session"),
-            _TC("1 point/day"),
-          ]),
-          TableRow(children: [
-            _TC("Guest Lecture / Workshop / Event"),
-            _TC("2 points for Coordinator"),
-            _TC("2 points/session"),
-            _TC("NA"),
-          ]),
-        ],
-      );
+  // ======================= 3.1 =======================
 
   Widget _dynamic31() => Column(children: [
         ...List.generate(table31.length, (i) {
           final r = table31[i];
           return Row(children: [
-            // EVENT
             Expanded(
               child: DropdownButtonFormField<String>(
                 value: r['event'],
@@ -160,14 +157,11 @@ class _ExpertiseValueAdditionPageState
                     .map((e) =>
                         DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
-                onChanged: (v) =>
-                    setState(() => r['event'] = v!),
+                onChanged: (v) => setState(() => r['event'] = v!),
                 decoration: const InputDecoration(labelText: "Event"),
               ),
             ),
             const SizedBox(width: 8),
-
-            // ROLE
             Expanded(
               child: DropdownButtonFormField<String>(
                 value: r['role'],
@@ -185,12 +179,9 @@ class _ExpertiseValueAdditionPageState
               ),
             ),
             const SizedBox(width: 8),
-
-            // DURATION
             Expanded(
               child: TextFormField(
-                decoration:
-                    const InputDecoration(labelText: "Duration"),
+                decoration: const InputDecoration(labelText: "Duration"),
                 onChanged: (v) {
                   setState(() {
                     r['duration'] = v;
@@ -200,7 +191,20 @@ class _ExpertiseValueAdditionPageState
               ),
             ),
             const SizedBox(width: 8),
-
+            OutlinedButton.icon(
+              onPressed: () =>
+                  r['pdfAttached'] == true ? openPdf(r) : pickPdf(r),
+              icon: Icon(
+                r['pdfAttached'] == true
+                    ? Icons.check_circle
+                    : Icons.upload_file,
+                color:
+                    r['pdfAttached'] == true ? Colors.green : Colors.indigo,
+              ),
+              label:
+                  Text(r['pdfAttached'] == true ? "Attached" : "Upload"),
+            ),
+            const SizedBox(width: 8),
             _badge(r['points']),
             IconButton(
               icon: const Icon(Icons.delete),
@@ -210,6 +214,8 @@ class _ExpertiseValueAdditionPageState
             )
           ]);
         }),
+
+        /// ➕ ADD ROW (3.1)
         Align(
           alignment: Alignment.centerRight,
           child: TextButton.icon(
@@ -219,34 +225,16 @@ class _ExpertiseValueAdditionPageState
                   'event': 'Conference',
                   'role': 'Organized',
                   'duration': '',
-                  'points': 10
+                  'points': 10,
+                  'pdfAttached': false,
+                  'pdfBytes': null,
+                  'pdfPath': null,
                 })),
           ),
-        )
+        ),
       ]);
 
-  Widget _reference32() => Table(
-        border: TableBorder.all(),
-        columnWidths: const {
-          0: FixedColumnWidth(40),
-          1: FlexColumnWidth(6),
-          2: FixedColumnWidth(80),
-        },
-        children: [
-          const TableRow(children: [
-            _TH("S.No"),
-            _TH("Expertise / Recognition / Contribution"),
-            _TH("Points"),
-          ]),
-          ...expertisePoints.entries.toList().asMap().entries.map((e) {
-            return TableRow(children: [
-              _TC("${e.key + 1}"),
-              _TC(e.value.key),
-              _TC(e.value.value.toString()),
-            ]);
-          }),
-        ],
-      );
+  // ======================= 3.2 =======================
 
   Widget _dynamic32() => Column(children: [
         ...List.generate(table32.length, (i) {
@@ -259,11 +247,29 @@ class _ExpertiseValueAdditionPageState
                     .map((e) =>
                         DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
-                onChanged: (v) =>
-                    setState(() => r['points'] = expertisePoints[v]!),
+                onChanged: (v) {
+                  setState(() {
+                    r['type'] = v!;
+                    r['points'] = expertisePoints[v]!;
+                  });
+                },
                 decoration:
                     const InputDecoration(labelText: "Expertise Type"),
               ),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  r['pdfAttached'] == true ? openPdf(r) : pickPdf(r),
+              icon: Icon(
+                r['pdfAttached'] == true
+                    ? Icons.check_circle
+                    : Icons.upload_file,
+                color:
+                    r['pdfAttached'] == true ? Colors.green : Colors.indigo,
+              ),
+              label:
+                  Text(r['pdfAttached'] == true ? "Attached" : "Upload"),
             ),
             const SizedBox(width: 8),
             _badge(r['points']),
@@ -275,6 +281,8 @@ class _ExpertiseValueAdditionPageState
             )
           ]);
         }),
+
+        /// ➕ ADD ROW (3.2)
         Align(
           alignment: Alignment.centerRight,
           child: TextButton.icon(
@@ -282,13 +290,16 @@ class _ExpertiseValueAdditionPageState
             label: const Text("Add Row"),
             onPressed: () => setState(() => table32.add({
                   'type': expertisePoints.keys.first,
-                  'points': expertisePoints.values.first
+                  'points': expertisePoints.values.first,
+                  'pdfAttached': false,
+                  'pdfBytes': null,
+                  'pdfPath': null,
                 })),
           ),
-        )
+        ),
       ]);
 
-  // ======================= UI HELPERS =======================
+  // ======================= COMMON =======================
 
   Widget _title(ThemeData t, String s) =>
       Text(s, style: t.textTheme.titleLarge);
@@ -314,28 +325,12 @@ class _ExpertiseValueAdditionPageState
           color: t.colorScheme.primary.withOpacity(.15),
           borderRadius: BorderRadius.circular(6),
         ),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Text("Self-Assessment Points (Max: 10)"),
-          Text(v.toString(), style: t.textTheme.titleMedium),
-        ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Self-Assessment Points (Max: 10)"),
+            Text(v.toString(), style: t.textTheme.titleMedium),
+          ],
+        ),
       );
-}
-
-// ======================= TABLE CELLS =======================
-
-class _TH extends StatelessWidget {
-  final String t;
-  const _TH(this.t);
-  @override
-  Widget build(BuildContext c) =>
-      Padding(padding: const EdgeInsets.all(8), child: Text(t));
-}
-
-class _TC extends StatelessWidget {
-  final String t;
-  const _TC(this.t);
-  @override
-  Widget build(BuildContext c) =>
-      Padding(padding: const EdgeInsets.all(8), child: Text(t));
 }

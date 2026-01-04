@@ -1,5 +1,7 @@
-import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
 int administrationtotal = 0;
 
 class AdministrationPage extends StatefulWidget {
@@ -33,15 +35,19 @@ class _AdministrationPageState extends State<AdministrationPage>
   ];
 
   late List<TextEditingController> controllers;
+  late List<File?> uploadedPdfs; // 🔹 PDF store per row
 
   @override
   void initState() {
     super.initState();
     controllers =
-        List.generate(rows.length, (index) => TextEditingController(text: "0"));
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
-    _controller.forward();
+        List.generate(rows.length, (_) => TextEditingController(text: "0"));
+    uploadedPdfs = List.generate(rows.length, (_) => null);
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
   }
 
   int get totalPoints {
@@ -50,17 +56,30 @@ class _AdministrationPageState extends State<AdministrationPage>
       total += int.tryParse(c.text) ?? 0;
     }
     return total > maxTotal ? maxTotal : total;
-    
   }
-  
 
+  /// 🔹 FILE PICKER FUNCTION (PDF ONLY)
+  Future<void> pickPdf(int index) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        uploadedPdfs[index] = File(result.files.single.path!);
+      });
+
+      debugPrint("PDF selected for row ${index + 1}: "
+          "${result.files.single.name}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6EA),
-     
-      body: _content(), // ✅ ONLY MAIN CONTENT
+      body: _content(),
     );
   }
 
@@ -127,6 +146,7 @@ class _AdministrationPageState extends State<AdministrationPage>
           _HeaderCell("Administrative Activity", flex: 4),
           _HeaderCell("Central\nPoints", flex: 2),
           _HeaderCell("Dept\nPoints", flex: 2),
+          _HeaderCell("PDF", flex: 2),
           _HeaderCell("Points\nClaimed", flex: 2),
         ],
       ),
@@ -135,12 +155,10 @@ class _AdministrationPageState extends State<AdministrationPage>
 
   Widget _rowItem(int index) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
-      ),
       padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
       child: Row(
         children: [
           _cell("${index + 1}", flex: 1),
@@ -149,6 +167,7 @@ class _AdministrationPageState extends State<AdministrationPage>
               const Color(0xFFE3F2FD)),
           _badge(rows[index]["dept"].toString(),
               const Color(0xFFE8F5E9)),
+          _pdfButton(index),
           _inputBox(index),
         ],
       ),
@@ -170,13 +189,32 @@ class _AdministrationPageState extends State<AdministrationPage>
       flex: 2,
       child: Center(
         child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(6),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
           child: Text(text),
+        ),
+      ),
+    );
+  }
+
+  /// 🔹 PDF UPLOAD BUTTON
+  Widget _pdfButton(int index) {
+    final bool uploaded = uploadedPdfs[index] != null;
+
+    return Expanded(
+      flex: 2,
+      child: Center(
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: uploaded ? Colors.green : Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
+          onPressed: () => pickPdf(index),
+          icon: const Icon(Icons.picture_as_pdf, size: 16),
+          label: Text(
+            uploaded ? "Uploaded" : "Upload",
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ),
     );
@@ -234,11 +272,11 @@ class _AdministrationPageState extends State<AdministrationPage>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed:()=>{
+            onPressed: () {
               setState(() {
-                administrationtotal= totalPoints;
-              }),
-              debugPrint("Administration Points Saved Successfully"),
+                administrationtotal = totalPoints;
+              });
+              debugPrint("Administration Points Saved Successfully");
             },
             child: const Text("Save Section"),
           ),

@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:open_filex/open_filex.dart';
+import 'dart:typed_data';
+
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 class ProjectConsultancy extends StatefulWidget {
   const ProjectConsultancy({super.key});
@@ -19,13 +25,8 @@ class _ProjectConsultancyPage26State
     rows.add(ProjectRow());
   }
 
-  double get totalPoints {
-    double sum = 0;
-    for (var r in rows) {
-      sum += r.points;
-    }
-    return sum;
-  }
+  double get totalPoints =>
+      rows.fold(0, (sum, r) => sum + r.points);
 
   void calculatePoints(ProjectRow row) {
     if (row.status == null || row.status!.isEmpty) {
@@ -36,22 +37,19 @@ class _ProjectConsultancyPage26State
     if (row.status == "Shortlisted") {
       row.points = 5;
     } else if (row.status == "Sanctioned") {
-      double amt = double.tryParse(row.amountController.text) ?? 0;
-      row.points = (amt * 5).toDouble();
+      double amt =
+          double.tryParse(row.amountController.text) ?? 0;
+      row.points = amt * 5;
     }
   }
 
   void addRow() {
-    setState(() {
-      rows.add(ProjectRow());
-    });
+    setState(() => rows.add(ProjectRow()));
   }
 
   void removeRow() {
     if (rows.length > 1) {
-      setState(() {
-        rows.removeLast();
-      });
+      setState(() => rows.removeLast());
     }
   }
 
@@ -59,7 +57,8 @@ class _ProjectConsultancyPage26State
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("2.6 Project / Consultancy Proposals"),
+        title:
+            const Text("2.6 Project / Consultancy Proposals"),
         backgroundColor: Colors.indigo,
       ),
       body: SingleChildScrollView(
@@ -72,11 +71,7 @@ class _ProjectConsultancyPage26State
             _tableHeader(),
             const SizedBox(height: 6),
             ...rows.asMap().entries.map(
-              (entry) {
-                int index = entry.key;
-                ProjectRow row = entry.value;
-                return _tableRow(index, row);
-              },
+              (e) => _tableRow(e.key, e.value),
             ),
             const SizedBox(height: 10),
             Row(
@@ -108,14 +103,15 @@ class _ProjectConsultancyPage26State
   Widget _headingCard() {
     return Card(
       color: Colors.grey.shade200,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
+      child: const Padding(
+        padding: EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               "2.6 Project / Consultancy Proposals:",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 6),
             Text(
@@ -136,12 +132,15 @@ class _ProjectConsultancyPage26State
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       color: Colors.indigo.shade100,
-      child: Row(
-        children: const [
+      child: const Row(
+        children: [
           _HeaderCell("S.No", flex: 1),
-          _HeaderCell("Details of Project / Consultancy", flex: 4),
-          _HeaderCell("Funding Agency / Industry", flex: 3),
+          _HeaderCell(
+              "Details of Project / Consultancy", flex: 4),
+          _HeaderCell(
+              "Funding Agency / Industry", flex: 3),
           _HeaderCell("Total Worth (Lakh)", flex: 2),
+          _HeaderCell("Upload PDF", flex: 2),
           _HeaderCell("Points Claimed", flex: 2),
         ],
       ),
@@ -153,13 +152,13 @@ class _ProjectConsultancyPage26State
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
+        border:
+            Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
           _cell(Text("${index + 1}"), 1),
+
           _cell(
             TextField(
               controller: row.detailsController,
@@ -169,31 +168,26 @@ class _ProjectConsultancyPage26State
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
-              onChanged: (_) {
-                setState(() {
-                  calculatePoints(row);
-                });
-              },
+              onChanged: (_) =>
+                  setState(() => calculatePoints(row)),
             ),
             4,
           ),
+
           _cell(
             TextField(
               controller: row.agencyController,
-              maxLines: 1,
               decoration: const InputDecoration(
                 hintText: "Enter agency",
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
-              onChanged: (_) {
-                setState(() {
-                  calculatePoints(row);
-                });
-              },
+              onChanged: (_) =>
+                  setState(() => calculatePoints(row)),
             ),
             3,
           ),
+
           _cell(
             TextField(
               controller: row.amountController,
@@ -203,14 +197,39 @@ class _ProjectConsultancyPage26State
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
-              onChanged: (_) {
-                setState(() {
-                  calculatePoints(row);
-                });
-              },
+              onChanged: (_) =>
+                  setState(() => calculatePoints(row)),
             ),
             2,
           ),
+
+          // ===== PDF COLUMN =====
+          _cell(
+            OutlinedButton.icon(
+              onPressed: () async {
+                if (row.pdfAttached) {
+                  openPdf(row);
+                } else {
+                  await pickPdf(row);
+                  setState(() {});
+                }
+              },
+              icon: Icon(
+                row.pdfAttached
+                    ? Icons.check_circle
+                    : Icons.upload_file,
+                color: row.pdfAttached
+                    ? Colors.green
+                    : Colors.indigo,
+              ),
+              label: Text(
+                row.pdfAttached ? "Attached" : "Upload",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            2,
+          ),
+
           _cell(
             Container(
               padding: const EdgeInsets.all(10),
@@ -250,20 +269,52 @@ class _ProjectConsultancyPage26State
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.green.shade400, Colors.indigo.shade400],
+            colors: [
+              Colors.green.shade400,
+              Colors.indigo.shade400
+            ],
           ),
         ),
         child: Text(
           "Self-Assessment Points : ${totalPoints.toStringAsFixed(2)}",
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
           textAlign: TextAlign.center,
+          style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ),
     );
+  }
+
+  // ================= PDF LOGIC =================
+  Future<void> pickPdf(ProjectRow row) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: kIsWeb,
+    );
+
+    if (result == null) return;
+
+    if (kIsWeb) {
+      row.pdfBytes = result.files.single.bytes;
+    } else {
+      row.pdfPath = result.files.single.path;
+    }
+    row.pdfAttached = true;
+  }
+
+  void openPdf(ProjectRow row) {
+    if (kIsWeb && row.pdfBytes != null) {
+      final blob =
+          html.Blob([row.pdfBytes], 'application/pdf');
+      final url =
+          html.Url.createObjectUrlFromBlob(blob);
+      html.window.open(url, '_blank');
+    } else if (!kIsWeb && row.pdfPath != null) {
+      OpenFilex.open(row.pdfPath!);
+    }
   }
 }
 
@@ -278,15 +329,10 @@ class _HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -294,10 +340,17 @@ class _HeaderCell extends StatelessWidget {
 
 // ================= ROW MODEL =================
 class ProjectRow {
-  TextEditingController detailsController = TextEditingController();
-  TextEditingController agencyController = TextEditingController();
-  TextEditingController amountController = TextEditingController();
+  TextEditingController detailsController =
+      TextEditingController();
+  TextEditingController agencyController =
+      TextEditingController();
+  TextEditingController amountController =
+      TextEditingController();
 
   String? status;
   double points = 0;
+
+  bool pdfAttached = false;
+  String? pdfPath;
+  Uint8List? pdfBytes;
 }
