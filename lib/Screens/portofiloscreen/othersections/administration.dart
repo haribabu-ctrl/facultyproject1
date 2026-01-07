@@ -250,7 +250,7 @@ class _AdministrationPageState extends State<AdministrationPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "Total Points Claimed (Max 10):",
+            "Total Points Claimed (Max 20):",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Container(

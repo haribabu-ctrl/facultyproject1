@@ -11,7 +11,7 @@ import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
 import 'package:flutter/material.dart';
 
-  double researchtotal = (paperpublicationtotal+guidingtotal+bookstotal+projecttotal+noveltotal+patentstotal)/6;
+  double researchtotal =paperpublicationtotal+(guidingtotal+bookstotal+projecttotal+noveltotal+patentstotal)/6;
 
 class FacultyPortfolioPage extends StatefulWidget {
   const FacultyPortfolioPage({super.key});

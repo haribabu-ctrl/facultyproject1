@@ -1,7 +1,7 @@
 import 'package:faculty_app1/Screens/signandLogin/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/globaldata.dart';
+import 'package:faculty_app1/Model/globaldata.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -18,20 +18,21 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController employIDController = TextEditingController();
   final TextEditingController nameEmpIdController = TextEditingController();
-  final TextEditingController designationDeptController =
-      TextEditingController();
-  final TextEditingController dateOfJoiningController =
-      TextEditingController();
-  final TextEditingController qualificationController =
-      TextEditingController();
+  final TextEditingController designationController =TextEditingController();
+  final TextEditingController departmentController = TextEditingController();
+  final TextEditingController dateOfJoiningController =TextEditingController();
+  final TextEditingController qualificationController =TextEditingController();
   final TextEditingController scopusIdController = TextEditingController();
-  final TextEditingController webOfScienceIdController =
-      TextEditingController();
+  final TextEditingController webOfScienceIdController =TextEditingController();
   final TextEditingController orcidIdController = TextEditingController();
 
-  // 🔹 Qualification dropdown data
+
+  String selectedRole = "Staff";
+
+  //Qualification dropdown data
   String? selectedQualification;
   final List<String> qualificationOptions = ["PhD", "Non-PhD"];
+  
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,7 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
                   children: [
                     const Center(
                       child: Text(
-                        "Staff Sign Up",
+                        "ACCOUNT REGISTRATION",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
@@ -64,6 +65,24 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
                     _buildField("User Name", usernameController),
                     _buildField("Password", passwordController,
                         obscure: true),
+
+                    const SizedBox(height: 10,),
+                    const Text(
+  "Select Role",
+  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+),
+const SizedBox(height: 10),
+
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceAround,
+  children: [
+    _roleRadio("Admin"),
+    _roleRadio("HOD"),
+    _roleRadio("Staff"),
+  ],
+),
+
+const SizedBox(height: 20),
 
                     const SizedBox(height: 15),
                     const Text(
@@ -75,13 +94,16 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
 
                     _buildField("Name", nameEmpIdController),
                     _buildField("Employ-ID", employIDController),
-                    _buildField("Designation & Department",
-                        designationDeptController),
+                    _buildField("Designation",
+                        designationController),
+                    _buildField("Department",
+                        departmentController),
                     _buildField("Date of Joining",
                         dateOfJoiningController),
 
-                    /// 🔹 QUALIFICATION DROPDOWN (FIXED)
+                    ///QUALIFICATION DROPDOWN (FIXED)
                     _buildQualificationField(),
+                   
 
                     _buildField("Scopus ID", scopusIdController),
                     _buildField("Web of Science ID",
@@ -97,17 +119,29 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
                         onPressed: () {
   if (_formKey.currentState!.validate()) {
 
-    savedEmail = usernameController.text;
-    savedPassword = passwordController.text;
+    //ROLE-BASED LOGIN CREDENTIAL SAVE
+    if (selectedRole == "Admin") {
+      adminEmail = usernameController.text;
+      adminPassword = passwordController.text;
+    } else if (selectedRole == "HOD") {
+      hodEmail = usernameController.text;
+      hodPassword = passwordController.text;
+    } else {
+      staffEmail = usernameController.text;
+      staffPassword = passwordController.text;
+    }
 
+    //  PROFILE DATA (unchanged)
     staffProfileData = {
       "username": usernameController.text,
       "password": passwordController.text,
+      "role": selectedRole,
       "name": nameEmpIdController.text,
       "employeeId": employIDController.text,
-      "designationDept": designationDeptController.text,
+      "designation": designationController.text,
+      "department": departmentController.text,
       "dateOfJoining": dateOfJoiningController.text,
-      "qualification": selectedQualification, // ✅ FIX
+      "qualification": selectedQualification,
       "scopusId": scopusIdController.text,
       "webOfScienceId": webOfScienceIdController.text,
       "orcidId": orcidIdController.text,
@@ -115,6 +149,7 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
 
     debugPrint(staffProfileData.toString());
 
+    // 🔁 GO TO LOGIN
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => LoginScreen()),
@@ -206,4 +241,35 @@ class _StaffSignUpPageState extends State<SignUpScreen> {
       ),
     );
   }
+  Widget _roleRadio(String role) {
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        selectedRole = role;
+      });
+    },
+    child: Row(
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.green),
+            color: selectedRole == role ? Colors.green : Colors.transparent,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          role,
+          style: GoogleFonts.poppins(
+            fontWeight:
+                selectedRole == role ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }

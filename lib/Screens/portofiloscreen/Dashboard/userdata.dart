@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/globaldata.dart';
+import 'package:faculty_app1/Model/globaldata.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -68,12 +68,17 @@ class _UserProfilePageState extends State<UserProfilePage>
                     _infoRow("Name", staffProfileData["name"]),
                     _infoRow("Employee ID", staffProfileData["employeeId"]),
                     _infoRow(
-                        "Designation & Dept",
-                        staffProfileData["designationDept"]),
+                        "Designation",
+                        staffProfileData["designation"]),
+                    _infoRow(
+                        "Department",
+                        staffProfileData["department"]),
                     _infoRow("Date of Joining",
                         staffProfileData["dateOfJoining"]),
                     _infoRow("Qualification",
                         staffProfileData["qualification"]),
+                     _infoRow("Level",
+                        staffProfileData["level"]),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -115,7 +120,14 @@ class _UserProfilePageState extends State<UserProfilePage>
         ),
         const SizedBox(height: 4),
         Text(
-          staffProfileData["designationDept"] ?? "",
+          staffProfileData["designation"] ?? "",
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            color: Colors.grey[700],
+          ),
+        ),
+        Text(
+          staffProfileData["department"] ?? "",
           style: GoogleFonts.poppins(
             fontSize: 13,
             color: Colors.grey[700],

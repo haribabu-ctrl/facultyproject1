@@ -2,8 +2,8 @@ import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
 import 'package:faculty_app1/Screens/signandLogin/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:faculty_app1/Model/globaldata.dart';
 
-import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/globaldata.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,12 +13,12 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  // Common controllers for HOD login
+  final hodEmailController = TextEditingController();
+  final hodPasswordController = TextEditingController();
 
   late AnimationController _controller;
   late Animation<double> _scale;
-  
 
   @override
   void initState() {
@@ -34,16 +34,20 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void login() {
-    if (usernameController.text == savedEmail &&
-        passwordController.text == savedPassword ) {
+  /// HOD LOGIN (Existing)
+  void hodLogin() {
+    final email = hodEmailController.text;
+    final password = hodPasswordController.text;
+
+    if (email == hodEmail && password == hodPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text("Login Successful ✅")),
+        const SnackBar(content: Text("HOD Login Successful ")),
       );
-       Navigator.push(context,MaterialPageRoute(builder: (_)=>DashboardPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => DashboardPage()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid Username or Password ❌")),
+        const SnackBar(content: Text("Invalid HOD Credentials ")),
       );
     }
   }
@@ -53,90 +57,120 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFFFF7EE),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 360,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
-                  )
-                ],
+        child: SingleChildScrollView(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+
+              /// ADMIN LOGIN (LEFT)
+              _sideLoginCard(
+                title: "Admin Login",
+                color: Colors.orangeAccent,
+                savedEmail: adminEmail,
+                savedPassword: adminPassword,
+                successText: "Admin Login Successful ",
+                failText: "Invalid Admin Credentials ",
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+
+              /// HOD LOGIN (CENTER – EXISTING)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Login",
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: 360,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 12,
+                          offset: Offset(0, 6),
+                        )
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-            
-                  _field("Email", usernameController),
-                  const SizedBox(height: 16),
-                  _field("Password", passwordController, isPassword: true),
-                  const SizedBox(height: 22),
-            
-                  ScaleTransition(
-                    scale: _scale,
-                    child: GestureDetector(
-                      onTapDown: (_) => _controller.forward(),
-                      onTapUp: (_) {
-                        _controller.reverse();
-                        
-                        login();
-                      },
-                      onTapCancel: () => _controller.reverse(),
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          gradient: const LinearGradient(
-                            colors: [Colors.orange, Colors.blue],
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "HOD Login",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        child: Center(
-                          child: Text(
-                            "Login",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                        const SizedBox(height: 20),
+                        _field("Email", hodEmailController),
+                        const SizedBox(height: 16),
+                        _field("Password", hodPasswordController, isPassword: true),
+                        const SizedBox(height: 22),
+                        ScaleTransition(
+                          scale: _scale,
+                          child: GestureDetector(
+                            onTapDown: (_) => _controller.forward(),
+                            onTapUp: (_) {
+                              _controller.reverse();
+                              hodLogin();
+                            },
+                            onTapCancel: () => _controller.reverse(),
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                gradient: const LinearGradient(
+                                  colors: [Colors.orange, Colors.blue],
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SignUpScreen()),
+                      );
+                    },
+                    child: Text(
+                      "I don't have an account?",
+                      style: GoogleFonts.poppins(color: Colors.red),
+                    ),
+                  ),
                 ],
               ),
-            ),SizedBox(height: 20,),
-            GestureDetector(
-                onTap: (){
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => SignUpScreen()));
-                },
-                child: Text(
-                  "I don't have an account? ",
-                  style: GoogleFonts.poppins(color: Colors.red),
-                ),
+
+              /// STAFF LOGIN (RIGHT)
+              _sideLoginCard(
+                title: "Staff Login",
+                color: Colors.green,
+                savedEmail: staffEmail,
+                savedPassword: staffPassword,
+                successText: "Staff Login Successful ",
+                failText: "Invalid Staff Credentials ",
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  /// COMMON TEXT FIELD
   Widget _field(String label, TextEditingController controller,
       {bool isPassword = false}) {
     return Column(
@@ -157,6 +191,81 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
       ],
+    );
+  }
+
+  /// ADMIN / STAFF CARD
+  Widget _sideLoginCard({
+    required String title,
+    required Color color,
+    required String savedEmail,
+    required String savedPassword,
+    required String successText,
+    required String failText,
+  }) {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          )
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 14),
+          _field("Email", emailController),
+          const SizedBox(height: 12),
+          _field("Password", passwordController, isPassword: true),
+          const SizedBox(height: 18),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              minimumSize: const Size(double.infinity, 42),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              final email = emailController.text;
+              final password = passwordController.text;
+
+              if (email == savedEmail && password == savedPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(successText)),
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => DashboardPage()),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(failText)),
+                );
+              }
+            },
+            child: const Text("Login"),
+          ),
+        ],
+      ),
     );
   }
 }
