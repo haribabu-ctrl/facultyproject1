@@ -7,6 +7,8 @@ import 'dart:typed_data';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
+double projecttotal = 0 ;
+
 class ProjectConsultancy extends StatefulWidget {
   const ProjectConsultancy({super.key});
 
@@ -57,6 +59,7 @@ class _ProjectConsultancyPage26State
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title:
             const Text("2.6 Project / Consultancy Proposals"),
         backgroundColor: Colors.indigo,
@@ -169,7 +172,10 @@ class _ProjectConsultancyPage26State
                 isDense: true,
               ),
               onChanged: (_) =>
-                  setState(() => calculatePoints(row)),
+                  setState(() {
+                    calculatePoints(row);
+                    projecttotal = totalPoints.toDouble();
+                  }),
             ),
             4,
           ),
@@ -183,7 +189,9 @@ class _ProjectConsultancyPage26State
                 isDense: true,
               ),
               onChanged: (_) =>
-                  setState(() => calculatePoints(row)),
+                  setState(() {calculatePoints(row);
+                  projecttotal = totalPoints.toDouble();
+                  }),
             ),
             3,
           ),
@@ -198,7 +206,9 @@ class _ProjectConsultancyPage26State
                 isDense: true,
               ),
               onChanged: (_) =>
-                  setState(() => calculatePoints(row)),
+                  setState(() { calculatePoints(row);
+                  projecttotal = totalPoints.toDouble();
+                  }),
             ),
             2,
           ),

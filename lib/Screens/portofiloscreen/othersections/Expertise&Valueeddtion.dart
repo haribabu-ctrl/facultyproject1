@@ -118,6 +118,7 @@ class _ExpertiseValueAdditionPageState
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Expertise Value Addition"),
         actions: [
           IconButton(

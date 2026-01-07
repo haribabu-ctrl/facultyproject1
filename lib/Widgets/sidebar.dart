@@ -2,6 +2,7 @@ import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Val
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/administration.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/portofilopage.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/interpersonalskills.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patents.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3bookschaptersConfirrence.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
@@ -140,11 +141,11 @@ class Sidebar extends StatelessWidget {
               Icons.admin_panel_settings,
               AdministrationPage(),
             ),
-            // _menuItem(
-            //   "Interpersonal",
-            //   Icons.people,
-            //   InterpersonalPage(),
-            // ),
+            _menuItem(
+              "Interpersonal",
+              Icons.people,
+              InterpersonalSkills(),
+            ),
           ],
         ),
       ),

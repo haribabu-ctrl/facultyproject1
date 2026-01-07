@@ -7,6 +7,8 @@ import 'dart:typed_data';
 // Web support
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
+
+double bookstotal = 0;
 class BooksChaptersProceeding extends StatefulWidget {
   const BooksChaptersProceeding({super.key});
 
@@ -26,6 +28,7 @@ class _BooksChaptersProceedingsPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title:
             const Text("2.3 Books / Chapters / Conference Proceedings"),
         backgroundColor: Colors.indigo,
@@ -155,6 +158,7 @@ class _BooksChaptersProceedingsPageState
                 setState(() {
                   row.category = val;
                   row.calculatePoints();
+                  bookstotal = totalPoints;
                 });
               },
               decoration: const InputDecoration(

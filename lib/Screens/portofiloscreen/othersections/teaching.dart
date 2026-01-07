@@ -1,6 +1,9 @@
+import 'package:faculty_app1/Model/techingmodel.dart';
 import 'package:flutter/material.dart';
 
+
 int totalTeachingAvg = 0;
+TeachingExeData? selectedteachingdata;
 
 class TeachingPage extends StatefulWidget {
   const TeachingPage({super.key});
@@ -10,7 +13,181 @@ class TeachingPage extends StatefulWidget {
 }
 
 class _TeachingPageState extends State<TeachingPage> {
-  // ================= COMMON =================
+  final TextEditingController userIdController = TextEditingController();
+
+  final teachingExeMockData = <TeachingExeData>[
+  TeachingExeData(
+    userId: "2026",
+    username: "DR.R.Anil Kumar",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2027",
+    username: "P.HARI BABU",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2028",
+    username: "R.SATISH KUMAR",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2029",
+    username: "M.RAJESH",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2030",
+    username: "DR.K.JANIKI",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+ TeachingExeData(
+    userId: "2031",
+    username: "DR.M.KUMAR REDDY",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2032",
+    username: "DR.R.ANIL KUMAR",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2033",
+    username: "R.KRISHNA KUMAR",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2034",
+    username: "P.VASANTH KUMAR",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+  TeachingExeData(
+    userId: "2035",
+    username: "DR.M.KUMAR ",
+    coursename: [
+      "ECE",
+      "NETWORK SIGNALS",
+      "EDC",
+      "SIGNALS AND SYSTEMS"
+    ],
+    s1A: [60, 58, 55, 50],
+    s1B: [55, 52, 50, 45],
+    s2Feedback: [82, 78, 75, 80],
+    s3A: [30, 28, 25, 20],
+    s3B: [28, 25, 23, 18],
+    s4A: [100, 100, 100, 100],
+    s4B: [80, 75, 70, 65],
+  ),
+];
+
   double calculatePoints(double percent) {
     if (percent >= 95) return 20;
     if (percent >= 85) return 15;
@@ -37,6 +214,8 @@ class _TeachingPageState extends State<TeachingPage> {
   Widget textInput() => SizedBox(
         width: 120,
         child: TextField(
+          readOnly: true,
+          enableInteractiveSelection: false,
           decoration: InputDecoration(
             isDense: true,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
@@ -45,17 +224,16 @@ class _TeachingPageState extends State<TeachingPage> {
       );
 
   Widget numberInput(TextEditingController c) => SizedBox(
-        width: 120,
-        child: TextField(
-          controller: c,
-          keyboardType: TextInputType.number,
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(
-            isDense: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-          ),
-        ),
-      );
+  width: 120,
+  child: TextField(
+    controller: c,
+    readOnly: true,
+    decoration: InputDecoration(
+      isDense: true,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+    ),
+  ),
+);
 
   double avg(List<double> p) {
     final valid = p.where((e) => e > 0).toList();
@@ -97,9 +275,53 @@ class _TeachingPageState extends State<TeachingPage> {
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
+    if (selectedteachingdata != null) {
+  for (int i = 0; i < 4; i++) {
+    s1A[i].text = selectedteachingdata!.s1A[i].toString();
+    s1B[i].text = selectedteachingdata!.s1B[i].toString();
+
+    s2Feedback[i].text = selectedteachingdata!.s2Feedback[i].toString();
+
+    s3A[i].text = selectedteachingdata!.s3A[i].toString();
+    s3B[i].text = selectedteachingdata!.s3B[i].toString();
+
+    s4A[i].text = selectedteachingdata!.s4A[i].toString();
+    s4B[i].text = selectedteachingdata!.s4B[i].toString();
+  }
+}
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+  children: [
+    SizedBox(
+      width: 220,
+      child: TextField(
+        controller: userIdController,
+        decoration: const InputDecoration(
+          labelText: "Enter User ID",
+          border: OutlineInputBorder(),
+        ),
+      ),
+    ),
+    const SizedBox(width: 12),
+    ElevatedButton(
+      onPressed: loadTeachingDataByUserId,
+      child: const Text("GO"),
+    ),
+  ],
+),
+if (selectedteachingdata != null) ...[
+  Text(
+    "Employee Name : ${selectedteachingdata!.username}",
+    style: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  const SizedBox(height: 16),
+],
+const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -190,8 +412,8 @@ class _TeachingPageState extends State<TeachingPage> {
 
         return [
           Text("${i + 1}"),
-          textInput(),
-          textInput(),
+          Text(selectedteachingdata == null ? "_" : selectedteachingdata!.username),
+          Text(selectedteachingdata == null ? "_" : selectedteachingdata!.coursename[i]),
           numberInput(aCtrls[i]),
           numberInput(bCtrls[i]),
           Text(percent == 0 ? "-" : percent.toStringAsFixed(1)),
@@ -228,13 +450,17 @@ Widget buildFeedbackSection({
 
       return [
         Text("${i + 1}"),          // S.No
-        textInput(),               // Course Name
-        textInput(),               // Sem-Branch-Sec
+        Text(selectedteachingdata == null?"_":selectedteachingdata!.username),
+        Text(selectedteachingdata == null?"_":selectedteachingdata!.coursename[i]),
 
-        // ✅ A Column → TextField visible
+
+
+        //  A Column → TextField visible
         SizedBox(
           width: 100,
           child: TextField(
+            readOnly: true,
+            enableInteractiveSelection: false,
             controller: aCtrls[i],
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -392,4 +618,32 @@ Widget buildFeedbackSection({
       ]),
     );
   }
+  void loadTeachingDataByUserId() {
+    
+  try {
+    final data = teachingExeMockData.firstWhere(
+      (e) => e.userId == userIdController.text.trim(),
+    );
+    selectedteachingdata = data;
+
+    for (int i = 0; i < 4; i++) {
+      s1A[i].text = data.s1A[i].toString();
+      s1B[i].text = data.s1B[i].toString();
+
+      s2Feedback[i].text = data.s2Feedback[i].toString();
+
+      s3A[i].text = data.s3A[i].toString();
+      s3B[i].text = data.s3B[i].toString();
+
+      s4A[i].text = data.s4A[i].toString();
+      s4B[i].text = data.s4B[i].toString();
+    }
+
+    setState(() {});
+  } catch (_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Invalid User ID")),
+    );
+  }
+}
 }

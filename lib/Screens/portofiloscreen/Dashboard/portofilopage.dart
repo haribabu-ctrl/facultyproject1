@@ -1,10 +1,17 @@
 import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/userdata.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/administration.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/othersections/interpersonalskills.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.1paperpublications.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3bookschaptersConfirrence.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patents.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
 import 'package:flutter/material.dart';
+
+  double researchtotal = (paperpublicationtotal+guidingtotal+bookstotal+projecttotal+noveltotal+patentstotal)/6;
 
 class FacultyPortfolioPage extends StatefulWidget {
   const FacultyPortfolioPage({super.key});
@@ -16,10 +23,10 @@ class FacultyPortfolioPage extends StatefulWidget {
 class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   final Map<String, double> maxScores = {
     "Teaching": 80,
-    "Research": 50,
-    "Value Addition": 30,
-    "Administration": 10,
-    "Interpersonal Skills": 30,
+    "Research": 80,
+    "Value Addition": 20,
+    "Administration": 20,
+    "Interpersonal Skills": 50,
   };
 
   final Map<String, IconData> icons = {
@@ -32,16 +39,16 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
 
   final Map<String, double> scores = {
     "Teaching": totalTeachingAvg.toDouble(),
-    "Research": 0,
+    "Research": researchtotal,
     "Value Addition": expertiseTotalPoints.toDouble(),
     "Administration": administrationtotal.toDouble(),
-    "Interpersonal Skills": 0,
+    "Interpersonal Skills": interpersonalskillstotal.toDouble(),
   };
 
   Color indicatorColor(double value, double max) {
     final p = (value / max) * 100;
-    if (p >= 75) return Colors.green;
-    if (p >= 40) return Colors.orange;
+    if (p >= 50) return Colors.green;
+    if (p >= 30) return Colors.orange;
     return Colors.red;
   }
 
@@ -57,6 +64,7 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Faculty Portfolio"),
         centerTitle: true,
         backgroundColor: const Color(0xffFF7A18),
@@ -341,7 +349,7 @@ void navigateToPage(BuildContext context ,String title){
       page = const TeachingPage();
       break;
     case "Research" :
-      page = const PaperPublication();
+      page =  PaperPublication();
       break;
     case "Value Addition":
       page = const ExpertiseValueAddition();
@@ -350,7 +358,7 @@ void navigateToPage(BuildContext context ,String title){
       page = const AdministrationPage();
       break;
     case "Interpersonal Skills":
-      page = const ProjectConsultancy();
+      page = const InterpersonalSkills();
       break;
     default :
       return;

@@ -7,6 +7,7 @@ import 'dart:typed_data';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
+double patentstotal = 0;
 /* ======================= MODEL ======================= */
 class PatentRow {
   String title = '';
@@ -48,6 +49,7 @@ class _PatentsPageState extends State<PatentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("2.4 Patents Published / Granted"),
         backgroundColor: Colors.indigo,
       ),
@@ -187,6 +189,7 @@ class _PatentsPageState extends State<PatentsPage> {
                 setState(() {
                   row.status = v ?? '';
                   row.calculatePoints();
+                  patentstotal = totalPoints.toDouble();
                 });
               },
             ),

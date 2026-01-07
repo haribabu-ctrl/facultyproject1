@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 
+double guidingtotal = 0;
 class GuidingPhDScholar extends StatefulWidget {
   const GuidingPhDScholar({super.key});
 
@@ -27,6 +28,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("2.2 Guiding Ph.D Scholars"),
         backgroundColor: Colors.indigo,
       ),
@@ -136,6 +138,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
                 setState(() {
                   row.status = val;
                   row.calculatePoints();
+                  guidingtotal = totalPoints;
                 });
               },
               decoration: const InputDecoration(

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
+double noveltotal = 0;
 
 /* ======================= MODEL ======================= */
 
@@ -75,6 +76,7 @@ class _NovelProductPageState extends State<NovelProduct> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("2.5 Novel products / Technology"),
         backgroundColor: Colors.indigo,
       ),
@@ -204,6 +206,7 @@ class _NovelProductPageState extends State<NovelProduct> {
                 setState(() {
                   row.organization = v ?? '';
                   row.calculatePoints();
+                  noveltotal = totalPoints.toDouble();
                 });
               },
             ),

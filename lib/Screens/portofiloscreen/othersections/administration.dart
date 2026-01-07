@@ -15,7 +15,7 @@ class _AdministrationPageState extends State<AdministrationPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
-  final int maxTotal = 10;
+  final int maxTotal = 20;
 
   final List<Map<String, dynamic>> rows = [
     {"title": "Dean / Assoc. Dean / CoE", "central": 15, "dept": 10},
@@ -130,7 +130,7 @@ class _AdministrationPageState extends State<AdministrationPage>
         border: Border.all(color: const Color(0xFFF57C00)),
       ),
       child: const Text(
-        "Self-Assessment Points: Maximum 10 points",
+        "Self-Assessment Points: Maximum 20 points",
         style: TextStyle(fontWeight: FontWeight.w600),
       ),
     );
