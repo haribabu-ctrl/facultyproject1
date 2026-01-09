@@ -1,6 +1,7 @@
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/Expertise&Valueeddtion.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/Dashboard/dashboard.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
+import 'package:faculty_app1/Screens/signandLogin/Login.dart';
 import 'package:faculty_app1/Screens/signandLogin/signup.dart';
 import 'package:flutter/material.dart';
 void main() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFFFF7EE),
       ),
-      home:  SignUpScreen(),
+      home:  LoginScreen(),
     );
   }
 }

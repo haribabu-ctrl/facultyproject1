@@ -159,7 +159,7 @@ class _ResearchPaperPublicationPageState extends State<PaperPublication> {
   maxLines: 3,
   onChanged: (_) {
     setState(() {
-      row.existingpaper = paperService.getExistingPaper(row.articleController.text);
+      row.existingpaper = paperService.getExistingPaper(row.articleController.text,row,threshold:0.9);
     });
   },
   decoration: const InputDecoration(
@@ -168,9 +168,9 @@ class _ResearchPaperPublicationPageState extends State<PaperPublication> {
     isDense: true,
   ),
 ),
-if (row.existingpaper != null)
+if (row.isMatched && row.existingpaper != null)
   Text(
-    "Already Exist – claimed by${row.existingpaper!.name} ( ${row.existingpaper!.employeeId})",
+    "Already Exist – claimed by${row.existingpaper!.name} ( ${row.existingpaper!.employeeId})\n Matched Words(${row.wordsMatchCount})",
     style: const TextStyle(
       color: Colors.red,
       fontWeight: FontWeight.bold,
@@ -362,6 +362,8 @@ class _HeaderCell extends StatelessWidget {
 //MODEL
 class ResearchRow {
   PaperModel? existingpaper;
+  bool isMatched  = false;
+  int wordsMatchCount =0;
   static const List<String> categories = [
     "IEEE / ASME / ASCE / ACM / FT-50 / Scopus Top-10%",
     "SCIE and Scopus (Q1/Q2)",
@@ -399,24 +401,60 @@ class ResearchRow {
     points = base + max(0, impact);
   }
 }
-
-// PAPER SERVICE
 class PaperService {
   final List<PaperModel> papers;
 
   PaperService(this.papers);
 
-  // Returns the PaperModel if title exists, otherwise null
-  PaperModel? getExistingPaper(String userInput) {
-    final input = userInput.trim().toLowerCase();
-    if (input.isEmpty) return null;
+  PaperModel? getExistingPaper(
+  String userInput,
+  ResearchRow row, {
+  double threshold = 0.9,
+}) {
+  if (userInput.trim().isEmpty) {
+    row.wordsMatchCount = 0;
+    row.isMatched = false;
+    return null;
+  }
 
-    try {
-      return papers.firstWhere(
-        (p) => p.title.trim().toLowerCase() == input,
-      );
-    } catch (e) {
-      return null; // no match found
+  final userWords = userInput
+      .toLowerCase()
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((w) => w.isNotEmpty)
+      .toSet();
+
+  for (var p in papers) {
+    final titleWords = p.title
+        .toLowerCase()
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toSet();
+
+    final matchedWords =
+        userWords.intersection(titleWords).length;
+
+    double userCoverage =
+        matchedWords / userWords.length; 
+    double titleCoverage =
+        matchedWords / titleWords.length; 
+
+    row.wordsMatchCount = matchedWords;
+
+    if (userCoverage >= threshold &&
+        titleCoverage >= threshold) {
+      row.isMatched = true;
+      return p;
     }
   }
+
+  row.wordsMatchCount = 0;
+  row.isMatched = false;
+  return null;
 }
+}
+
+
+
+
