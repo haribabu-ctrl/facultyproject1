@@ -63,23 +63,26 @@ class _LoginScreenState extends State<LoginScreen>
       backgroundColor: const Color(0xFFFFF7EE),
       body: Column(
         children: [
-          SizedBox(
-        width: double.infinity,
-        height: 170,
-        child: Image.network(
-          'https://in8cdn.npfs.co/uploads/template/6102/1556/publish/images/au_logo.png?1737981139',
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Center(
-              child: Text(
-                "Image not found",
-                style: TextStyle(color: Colors.red),
-              ),
-            );
-          },
-        ),
-      ),
-      SizedBox(height: 20,),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SizedBox(
+                    width: double.infinity,
+                    height: 100,
+                    child: Image.network(
+            'https://in8cdn.npfs.co/uploads/template/6102/1556/publish/images/au_logo.png?1737981139',
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(
+                child: Text(
+                  "Image not found",
+                  style: TextStyle(color: Colors.red),
+                ),
+              );
+            },
+                    ),
+                  ),
+          ),
+      SizedBox(height: 40,),
 
           Center(
             child: SingleChildScrollView(
