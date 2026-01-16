@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:faculty_app1/Model/globaldata.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -14,6 +15,9 @@ class _UserProfilePageState extends State<UserProfilePage>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  Map<String, dynamic>? staffProfileData;
+  bool loading = true;
 
   @override
   void initState() {
@@ -35,6 +39,33 @@ class _UserProfilePageState extends State<UserProfilePage>
     );
 
     _controller.forward();
+    _loadUserFromPrefs();
+  }
+
+  // 🔐 LOAD LOGIN USER DATA (FROM BACKEND LOGIN RESPONSE)
+  Future<void> _loadUserFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userJson = prefs.getString("userData");
+
+      if (userJson == null) {
+        setState(() {
+          loading = false;
+          staffProfileData = null;
+        });
+        return;
+      }
+
+      setState(() {
+        staffProfileData = jsonDecode(userJson);
+        loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+        staffProfileData = null;
+      });
+    }
   }
 
   @override
@@ -45,6 +76,18 @@ class _UserProfilePageState extends State<UserProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (staffProfileData == null) {
+      return const Scaffold(
+        body: Center(child: Text("Failed to load user profile")),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF5EA),
       appBar: AppBar(
@@ -65,32 +108,26 @@ class _UserProfilePageState extends State<UserProfilePage>
                 _infoCard(
                   title: "Personal Information",
                   children: [
-                    _infoRow("Name", staffProfileData["name"]),
-                    _infoRow("Employee ID", staffProfileData["employeeId"]),
+                    _infoRow("Name", staffProfileData!["name"]),
+                    _infoRow("Employee ID", staffProfileData!["employeeId"]),
+                    _infoRow("Designation", staffProfileData!["designation"]),
+                    _infoRow("Department", staffProfileData!["department"]),
                     _infoRow(
-                        "Designation",
-                        staffProfileData["designation"]),
+                        "Date of Joining",
+                        staffProfileData!["dateOfJoining"]),
                     _infoRow(
-                        "Department",
-                        staffProfileData["department"]),
-                    _infoRow("Date of Joining",
-                        staffProfileData["dateOfJoining"]),
-                    _infoRow("Qualification",
-                        staffProfileData["qualification"]),
-                     _infoRow("Level",
-                        staffProfileData["level"]),
+                        "Qualification",
+                        staffProfileData!["qualification"]),
                   ],
                 ),
                 const SizedBox(height: 16),
                 _infoCard(
                   title: "Research Profiles",
                   children: [
-                    _infoRow("Scopus ID",
-                        staffProfileData["scopusId"]),
+                    _infoRow("Scopus ID", staffProfileData!["scopusId"]),
                     _infoRow("Web of Science ID",
-                        staffProfileData["webOfScienceId"]),
-                    _infoRow("ORCID ID",
-                        staffProfileData["orcidId"]),
+                        staffProfileData!["webofScienceId"]),
+                    _infoRow("ORCID ID", staffProfileData!["orcidId"]),
                   ],
                 ),
               ],
@@ -101,7 +138,7 @@ class _UserProfilePageState extends State<UserProfilePage>
     );
   }
 
-  // 🔹 PROFILE HEADER
+  // 🔹 PROFILE HEADER (UI UNTOUCHED)
   Widget _profileHeader() {
     return Column(
       children: [
@@ -112,7 +149,7 @@ class _UserProfilePageState extends State<UserProfilePage>
         ),
         const SizedBox(height: 10),
         Text(
-          staffProfileData["name"] ?? "User Name",
+          staffProfileData!["name"] ?? "User Name",
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -120,14 +157,14 @@ class _UserProfilePageState extends State<UserProfilePage>
         ),
         const SizedBox(height: 4),
         Text(
-          staffProfileData["designation"] ?? "",
+          staffProfileData!["designation"] ?? "",
           style: GoogleFonts.poppins(
             fontSize: 13,
             color: Colors.grey[700],
           ),
         ),
         Text(
-          staffProfileData["department"] ?? "",
+          staffProfileData!["department"] ?? "",
           style: GoogleFonts.poppins(
             fontSize: 13,
             color: Colors.grey[700],
@@ -171,23 +208,17 @@ class _UserProfilePageState extends State<UserProfilePage>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 3,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-              ),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
           ),
           Expanded(
             flex: 5,
-            child: Text(
-              value?.isNotEmpty == true ? value! : "-",
-              style: GoogleFonts.poppins(),
-            ),
+            child: Text(value?.isNotEmpty == true ? value! : "-"),
           ),
         ],
       ),

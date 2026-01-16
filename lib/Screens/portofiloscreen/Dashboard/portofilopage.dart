@@ -8,10 +8,11 @@ import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3booksc
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.4Patents.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.5Novel%20productsTechnology.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.7citations&h_index.dart';
 import 'package:flutter/material.dart';
 
-  double researchtotal =paperpublicationtotal+(guidingtotal+bookstotal+projecttotal+noveltotal+patentstotal)/6;
+  
 
 class FacultyPortfolioPage extends StatefulWidget {
   const FacultyPortfolioPage({super.key});
@@ -21,6 +22,21 @@ class FacultyPortfolioPage extends StatefulWidget {
 }
 
 class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
+  double get row22to28 =>
+    guidingtotal +
+    bookstotal +
+    patentstotal +
+    noveltotal +
+    projectTotalPoints +
+    scopustotalPoints;
+
+double get total22to28 =>
+    row22to28 > 10 ? 10 : row22to28;
+
+double get researchtotal =>
+    paperpublicationtotal + total22to28;
+
+  
   final Map<String, double> maxScores = {
     "Teaching": 80,
     "Research": 80,
@@ -37,9 +53,9 @@ class _FacultyPortfolioPageState extends State<FacultyPortfolioPage> {
     "Interpersonal Skills": Icons.star,
   };
 
-  final Map<String, double> scores = {
+   Map<String, double>get  scores => {
     "Teaching": totalTeachingAvg.toDouble(),
-    "Research": researchtotal,
+    "Research": researchtotal.toDouble(),
     "Value Addition": expertiseTotalPoints.toDouble(),
     "Administration": administrationtotal.toDouble(),
     "Interpersonal Skills": interpersonalskillstotal.toDouble(),

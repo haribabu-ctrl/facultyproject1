@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'dart:html' as html;
 
 double bookstotal = 0;
+
 class BooksChaptersProceeding extends StatefulWidget {
   const BooksChaptersProceeding({super.key});
 
@@ -42,9 +43,14 @@ class _BooksChaptersProceedingsPageState
             const SizedBox(height: 12),
             _tableHeader(),
             const SizedBox(height: 6),
+
             ...rows.asMap().entries.map(
-                (e) => _tableRow(e.key, e.value)),
-            const SizedBox(height: 10),
+              (e) => _tableRow(e.key, e.value),
+            ),
+
+            const SizedBox(height: 14),
+
+            /// ADD / REMOVE + SAVE
             Row(
               children: [
                 ElevatedButton.icon(
@@ -54,7 +60,7 @@ class _BooksChaptersProceedingsPageState
                   icon: const Icon(Icons.add),
                   label: const Text("Add Row"),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 if (rows.length > 1)
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -65,9 +71,34 @@ class _BooksChaptersProceedingsPageState
                     icon: const Icon(Icons.remove),
                     label: const Text("Remove Row"),
                   ),
+                const Spacer(),
+
+                /// SAVE BUTTON
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 15),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      bookstotal = totalPoints;
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Points saved successfully"),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  // icon: const Icon(Icons.save),
+                  label: const Text("SAVE",style: TextStyle(color: Colors.white),),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 16),
             _totalCard(),
           ],
         ),
@@ -120,8 +151,8 @@ class _BooksChaptersProceedingsPageState
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        border: Border(
-            bottom: BorderSide(color: Colors.grey.shade300)),
+        border:
+            Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
@@ -158,7 +189,6 @@ class _BooksChaptersProceedingsPageState
                 setState(() {
                   row.category = val;
                   row.calculatePoints();
-                  bookstotal = totalPoints;
                 });
               },
               decoration: const InputDecoration(
@@ -180,7 +210,6 @@ class _BooksChaptersProceedingsPageState
             3,
           ),
 
-          // ================= REAL PDF UPLOAD =================
           _cell(
             OutlinedButton.icon(
               onPressed: () async {
@@ -195,14 +224,10 @@ class _BooksChaptersProceedingsPageState
                 row.pdfAttached
                     ? Icons.check_circle
                     : Icons.upload_file,
-                color: row.pdfAttached
-                    ? Colors.green
-                    : Colors.indigo,
+                color:
+                    row.pdfAttached ? Colors.green : Colors.indigo,
               ),
-              label: Text(
-                row.pdfAttached ? "Attached" : "Upload",
-                overflow: TextOverflow.ellipsis,
-              ),
+              label: Text(row.pdfAttached ? "Attached" : "Upload"),
             ),
             2,
           ),
@@ -261,7 +286,7 @@ class _BooksChaptersProceedingsPageState
     );
   }
 
-  // ================= PDF FUNCTIONS =================
+  // ================= PDF =================
   Future<void> pickPdf(BookRow row) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -273,7 +298,6 @@ class _BooksChaptersProceedingsPageState
 
     if (kIsWeb) {
       row.pdfBytes = result.files.single.bytes;
-      row.pdfName = result.files.single.name;
     } else {
       row.pdfPath = result.files.single.path;
     }
@@ -298,7 +322,6 @@ class _BooksChaptersProceedingsPageState
 class _HeaderCell extends StatelessWidget {
   final String text;
   final int flex;
-
   const _HeaderCell(this.text, {this.flex = 1});
 
   @override
@@ -324,11 +347,9 @@ class BookRow {
   String? category;
   double points = 0;
 
-  // PDF
   bool pdfAttached = false;
   String? pdfPath;
   Uint8List? pdfBytes;
-  String? pdfName;
 
   void calculatePoints() {
     if (category == "ISBN Book") {

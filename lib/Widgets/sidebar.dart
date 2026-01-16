@@ -8,8 +8,9 @@ import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.3booksc
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.2guiding%20PH.D%20Scholors.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.1paperpublications.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.6projectConsultancy.dart';
-import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/Novel%20productsTechnology.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.5Novel%20productsTechnology.dart';
 import 'package:faculty_app1/Screens/portofiloscreen/othersections/teaching.dart';
+import 'package:faculty_app1/Screens/portofiloscreen/researchpage.dart/2.7citations&h_index.dart';
 import 'package:flutter/material.dart';
 class Sidebar extends StatelessWidget {
   final Function(Widget) onPageSelected;
@@ -65,7 +66,7 @@ class Sidebar extends StatelessWidget {
             _menuItem("Dashboard", Icons.dashboard, FacultyPortfolioPage()),
             _menuItem("Teaching", Icons.menu_book, TeachingPage()),
 
-            // ===== Research Section =====
+            // ===== Research Section
             ExpansionTile(
               iconColor: Colors.deepOrange,
               collapsedIconColor: Colors.deepOrange,
@@ -128,6 +129,16 @@ class Sidebar extends StatelessWidget {
                   onTap: () =>
                       onPageSelected(ProjectConsultancy()),
                 ),
+                ListTile(
+                  leading:
+                      const Icon(Icons.lightbulb,
+                          color: Colors.red),
+                  title:
+                      const Text("Scopus citations score"),
+                  onTap: () =>
+                      onPageSelected(ScopusScorePage()),
+                ),
+               
               ],
             ),
 

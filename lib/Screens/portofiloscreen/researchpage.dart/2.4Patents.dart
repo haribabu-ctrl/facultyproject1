@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'dart:html' as html;
 
 double patentstotal = 0;
+
 /* ======================= MODEL ======================= */
 class PatentRow {
   String title = '';
@@ -18,7 +19,6 @@ class PatentRow {
   bool pdfAttached = false;
   String? pdfPath;
   Uint8List? pdfBytes;
-  String? pdfName;
 
   void calculatePoints() {
     if (status == "Granted") {
@@ -65,6 +65,8 @@ class _PatentsPageState extends State<PatentsPage> {
             ...rows.asMap().entries
                 .map((e) => _tableRow(e.key, e.value)),
             const SizedBox(height: 10),
+
+            /// ADD / REMOVE ROWS
             Row(
               children: [
                 ElevatedButton.icon(
@@ -87,14 +89,51 @@ class _PatentsPageState extends State<PatentsPage> {
                   ),
               ],
             ),
+
             const SizedBox(height: 20),
             _totalCard(),
+            const SizedBox(height: 20),
+
+            /// ===== SAVE BUTTON (BOTTOM RIGHT) =====
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  patentstotal = totalPoints.toDouble();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Saved Successfully : $patentstotal points",
+                      ),
+                      backgroundColor: Colors.green,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "SAVE",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
+  /* ================= HEADING ================= */
   Widget _headingCard() {
     return Card(
       color: Colors.grey.shade200,
@@ -116,6 +155,7 @@ class _PatentsPageState extends State<PatentsPage> {
     );
   }
 
+  /* ================= TABLE HEADER ================= */
   Widget _tableHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -135,6 +175,7 @@ class _PatentsPageState extends State<PatentsPage> {
     );
   }
 
+  /* ================= TABLE ROW ================= */
   Widget _tableRow(int index, PatentRow row) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -189,7 +230,6 @@ class _PatentsPageState extends State<PatentsPage> {
                 setState(() {
                   row.status = v ?? '';
                   row.calculatePoints();
-                  patentstotal = totalPoints.toDouble();
                 });
               },
             ),
@@ -252,6 +292,7 @@ class _PatentsPageState extends State<PatentsPage> {
     );
   }
 
+  /* ================= TOTAL CARD ================= */
   Widget _totalCard() {
     return Card(
       elevation: 4,
@@ -278,6 +319,7 @@ class _PatentsPageState extends State<PatentsPage> {
     );
   }
 
+  /* ================= PDF LOGIC ================= */
   Future<void> pickPdf(PatentRow row) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,

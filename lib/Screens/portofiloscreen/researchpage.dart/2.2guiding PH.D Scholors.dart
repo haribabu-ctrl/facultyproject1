@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 
 double guidingtotal = 0;
+
 class GuidingPhDScholar extends StatefulWidget {
   const GuidingPhDScholar({super.key});
 
@@ -16,13 +17,8 @@ class GuidingPhDScholar extends StatefulWidget {
 class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
   List<PhDRow> rows = [PhDRow()];
 
-  double get totalPoints {
-    double sum = 0;
-    for (var r in rows) {
-      sum += r.points;
-    }
-    return sum;
-  }
+  double get totalPoints =>
+      rows.fold(0, (sum, r) => sum + r.points);
 
   @override
   Widget build(BuildContext context) {
@@ -41,34 +37,62 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
             const SizedBox(height: 12),
             _tableHeader(),
             const SizedBox(height: 6),
-            ...rows.asMap().entries.map((e) => _tableRow(e.key, e.value)),
-            const SizedBox(height: 10),
+
+            ...rows.asMap().entries.map(
+              (e) => _tableRow(e.key, e.value),
+            ),
+
+            const SizedBox(height: 14),
+
+            /// ADD / REMOVE + SAVE
             Row(
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
-                    setState(() {
-                      rows.add(PhDRow());
-                    });
+                    setState(() => rows.add(PhDRow()));
                   },
                   icon: const Icon(Icons.add),
                   label: const Text("Add Row"),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 if (rows.length > 1)
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red),
                     onPressed: () {
-                      setState(() {
-                        rows.removeLast();
-                      });
+                      setState(() => rows.removeLast());
                     },
                     icon: const Icon(Icons.remove),
                     label: const Text("Remove Row"),
                   ),
+                const Spacer(),
+
+                /// SAVE BUTTON
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 22, vertical: 14),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      guidingtotal = totalPoints;
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Points saved successfully"),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.save),
+                  label: const Text("SAVE"),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 16),
             _totalCard(),
           ],
         ),
@@ -114,7 +138,6 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
   // ================= TABLE ROW =================
   Widget _tableRow(int index, PhDRow row) {
     return Container(
-      key: ValueKey(row),
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
@@ -125,6 +148,7 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
           _cell(_textField(row.nameController), 4),
           _cell(_textField(row.universityController), 3),
           _cell(_textField(row.monthYearController), 3),
+
           _cell(
             DropdownButtonFormField<String>(
               isExpanded: true,
@@ -138,7 +162,6 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
                 setState(() {
                   row.status = val;
                   row.calculatePoints();
-                  guidingtotal = totalPoints;
                 });
               },
               decoration: const InputDecoration(
@@ -149,28 +172,21 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
             2,
           ),
 
-          // ================= PDF COLUMN =================
           _cell(
             OutlinedButton.icon(
               onPressed: () async {
-                //  Already attached → OPEN PDF
                 if (row.pdfAttached) {
                   openPdf(row);
-                  return;
+                } else {
+                  await pickPdfForRow(row);
+                  setState(() {});
                 }
-
-                //  Pick PDF
-                await pickPdfForRow(row);
-                setState(() {}); 
               },
               icon: Icon(
                 row.pdfAttached ? Icons.check_circle : Icons.upload_file,
                 color: row.pdfAttached ? Colors.green : Colors.indigo,
               ),
-              label: Text(
-                row.pdfAttached ? "Attached" : "Upload",
-                overflow: TextOverflow.ellipsis,
-              ),
+              label: Text(row.pdfAttached ? "Attached" : "Upload"),
             ),
             2,
           ),
@@ -228,30 +244,29 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
         ),
         child: Text(
           "Self-Assessment Points : ${totalPoints.toStringAsFixed(0)}",
+          textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-  // ================= PDF UTILS =================
+  // ================= PDF =================
   Future<void> pickPdfForRow(PhDRow row) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      withData: kIsWeb, // 🔹 important for web
+      withData: kIsWeb,
     );
 
     if (result == null) return;
 
     if (kIsWeb) {
       row.pdfBytes = result.files.single.bytes;
-      row.pdfName = result.files.single.name;
     } else {
       row.pdfPath = result.files.single.path;
     }
@@ -274,26 +289,22 @@ class _GuidingPhDScholarsPageState extends State<GuidingPhDScholar> {
 class _HeaderCell extends StatelessWidget {
   final String text;
   final int flex;
-
   const _HeaderCell(this.text, {this.flex = 1});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-// ================= ROW MODEL =================
+// ================= MODEL =================
 class PhDRow {
   TextEditingController nameController = TextEditingController();
   TextEditingController universityController = TextEditingController();
@@ -303,12 +314,7 @@ class PhDRow {
   double points = 0;
 
   bool pdfAttached = false;
-
-  // 🔹 WEB
   Uint8List? pdfBytes;
-  String? pdfName;
-
-  // 🔹 MOBILE
   String? pdfPath;
 
   void calculatePoints() {
